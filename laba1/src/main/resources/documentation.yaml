@@ -1,0 +1,293 @@
+openapi: 3.0.0
+info:
+  title: Online Cinema API
+  version: 1.0.0
+  description: API для онлайн-кинотеатра с управлением фильмами, пользователями и рекомендациями.
+servers:
+  - url: http://localhost:8080
+    description: Локальный сервер
+
+paths:
+  /films:
+    delete:
+      summary: Удалить все фильмы
+      responses:
+        '200':
+          description: Все фильмы удалены
+        '500':
+          description: Ошибка сервера
+    get:
+      summary: Получить все фильмы
+      responses:
+        '200':
+          description: Список всех фильмов
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FilmResponse'
+
+  /film/{id}:
+    get:
+      summary: Получить фильм по ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Фильм найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FilmResponse'
+        '400':
+          description: Неверный запрос
+
+    delete:
+      summary: Удалить фильм по ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Фильм удален
+        '400':
+          description: Неверный запрос
+
+  /test/{number}:
+    post:
+      summary: Добавить фильмы
+      parameters:
+        - name: number
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Фильм добавлен
+        '400':
+          description: Неверный запрос
+
+  /film/update:
+    post:
+      summary: Обновить информацию о фильме
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FilmResponse'
+      responses:
+        '200':
+          description: Фильм обновлен
+        '400':
+          description: Ошибка обновления
+
+  /film/add:
+    post:
+      summary: Добавить новый фильм
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddingFIlm'
+      responses:
+        '200':
+          description: Фильм добавлен
+        '400':
+          description: Ошибка добавления
+
+  /films/random:
+    get:
+      summary: Получить случайные фильмы
+      parameters:
+        - name: size
+          in: query
+          schema:
+            type: integer
+          description: Количество фильмов
+        - name: genre
+          in: query
+          schema:
+            type: string
+          description: Жанр фильмов
+      responses:
+        '200':
+          description: Случайные фильмы
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FilmResponse'
+        '400':
+          description: Неверный запрос
+
+  /films/count:
+    get:
+      summary: Получить количество фильмов
+      responses:
+        '200':
+          description: Количество фильмов
+
+  /recommendations/{user}:
+    get:
+      summary: Получить рекомендации для пользователя
+      parameters:
+        - name: user
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Рекомендации для пользователя
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecommendationsResponse'
+        '400':
+          description: Неверный запрос
+
+  /recommendations:
+    get:
+      summary: Получить общие рекомендации
+      responses:
+        '200':
+          description: Общие рекомендации
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RecommendationsResponse'
+
+  /recommendations/addRequest:
+    post:
+      summary: Добавить запрос для получения рекомендаций
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecommendationsRequest'
+      responses:
+        '200':
+          description: Запрос обработан
+        '400':
+          description: Неверный запрос
+
+  /user:
+    post:
+      summary: Добавить нового пользователя
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+      responses:
+        '200':
+          description: Пользователь добавлен
+        '400':
+          description: Ошибка добавления пользователя
+
+  /user/films:
+    post:
+      summary: Обновить просмотренные фильмы пользователя
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserRequest'
+      responses:
+        '200':
+          description: Информация обновлена
+        '400':
+          description: Неверный запрос
+
+components:
+  schemas:
+    UserRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        watchedFilms:
+          type: array
+          items:
+            type: string
+
+    UpdateUserRequest:
+      type: object
+      properties:
+        id:
+          type: string
+        watchedFilms:
+          type: array
+          items:
+            type: string
+
+    AddingFIlm:
+      type: object
+      properties:
+        genre:
+          type: string
+        description:
+          type: string
+        name:
+          type: string
+        link:
+          type: string
+
+    FilmResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        genre:
+          type: string
+        description:
+          type: string
+        name:
+          type: string
+        link:
+          type: string
+
+    RecommendationsRequest:
+      type: object
+      properties:
+        users:
+          type: array
+          items:
+            type: string
+        selectedFilmsCount:
+          type: integer
+
+    RecommendationsResponse:
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/UserResponse'
+        films:
+          type: array
+          items:
+            $ref: '#/components/schemas/FilmResponse'
+
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
