@@ -9,11 +9,12 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 
 class KtorNetworkClient(private val client: HttpClient = configureClient()) {
     suspend fun addPrologRecommendationData(
         request: PrologRecommendationData
-    ) :HttpStatusCode {
+    ): HttpStatusCode {
         val request1 = client.post("http://prolog-server:8090/add_data") {
             contentType(ContentType.Application.Json)
             setBody(request)
@@ -44,6 +45,6 @@ data class PrologRecommendationData(
 
 fun configureClient() = HttpClient(Java) {
     install(ContentNegotiation) {
-        json()
+        json(Json { ignoreUnknownKeys = true })
     }
 }

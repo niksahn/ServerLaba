@@ -8,7 +8,8 @@ data class AddingFIlm(
     val genre: String,
     val description: String,
     val name: String,
-    val link: String
+    val link: String,
+    val userId: String
 )
 
-fun AddingFIlm.toData() = Film("", genres.filterValues { it == genre }.keys.first(), description, name, link)
+fun AddingFIlm.toData() = Film("", genres.filterValues { it == genre }.keys.first(), description, name, link, null)

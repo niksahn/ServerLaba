@@ -12,10 +12,11 @@ class DataRepositoryCollectionImpl : FilmsDataRepository {
                     " премьера которого состоялась 2 декабря 2013 года в программном блоке " +
                     "Cartoon Network [adult swim].",
             name = "Рик и морти",
-            link = "https://rick-i-morty.online/"
+            link = "https://rick-i-morty.online/",
+            null
         ),
-        Film("1", Genre.SI_FI, "фильм Нолана", "Начало", "https://rick-i-morty.online/"),
-        Film("2", Genre.DETECTIVE, "детектив", "Шерлок", "https://rick-i-morty.online/"),
+        Film("1", Genre.SI_FI, "фильм Нолана", "Начало", "https://rick-i-morty.online/", null),
+        Film("2", Genre.DETECTIVE, "детектив", "Шерлок", "https://rick-i-morty.online/", null),
     )
 
     override suspend fun getFilms(): List<Film> = films

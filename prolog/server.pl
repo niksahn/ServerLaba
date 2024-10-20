@@ -75,4 +75,6 @@ add_facts(Dict) :-
 findAndWrite :-
     findall(json([user=User, recomendation=Recommendation]), recommend(User, Recommendation), Recommendations),
     atom_json_dict(RecommendationsAtom, Recommendations, []),
-    write_message_to_stream(recommendations, RecommendationsAtom).
+    write_message_to_stream(recommendations, RecommendationsAtom),
+    retract(watched(_)),
+    retract(genre(_)).

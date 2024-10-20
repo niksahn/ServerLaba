@@ -43,6 +43,7 @@ dependencies {
     implementation("io.ktor:ktor-server-status-pages")
     implementation ("io.insert-koin:koin-logger-slf4j:$koin_version")
     implementation("redis.clients:jedis:4.2.3")
+    implementation("org.apache.kafka:kafka-streams:3.0.0")
 
     testImplementation("io.ktor:ktor-server-tests:2.0.0")
     testImplementation("org.jetbrains.kotlin:kotlin-test:1.6.10")

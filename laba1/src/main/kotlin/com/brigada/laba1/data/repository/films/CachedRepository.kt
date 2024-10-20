@@ -28,7 +28,8 @@ class CachedRepository(
     override suspend fun changeFilm(newFilmData: Film): Boolean =
         repository.changeFilm(newFilmData).also {
             redisClient.delete(ALL)
-            redisClient.delete(getFilmName(newFilmData.id)) }
+            redisClient.delete(getFilmName(newFilmData.id))
+        }
 
     override suspend fun addFilm(newFilmData: Film) = repository.addFilm(newFilmData)
     override suspend fun addFilm(newFilmData: List<Film>) {

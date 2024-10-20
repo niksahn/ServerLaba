@@ -2,19 +2,16 @@ package com.brigada.laba1
 
 import com.brigada.laba1.TestDataModule.testModule
 import com.brigada.laba1.data.caching.InMemoryClient
-import com.brigada.laba1.data.caching.RedisClient
-import com.brigada.laba1.data.messaging.PrologMessaging
-import com.brigada.laba1.data.messaging.RedisMessageClient
-import com.brigada.laba1.data.network.KtorNetworkClient
+import com.brigada.laba1.data.messaging.ApproveService
+import com.brigada.laba1.data.messaging.KafkaStreamsMessageClient
 import com.brigada.laba1.data.repository.films.CachedRepository
-import com.brigada.laba1.data.repository.films.FilmsDataRepository
 import com.brigada.laba1.data.repository.films.DataRepositoryMongo
+import com.brigada.laba1.data.repository.films.FilmsDataRepository
 import com.brigada.laba1.data.repository.users.UserDataRepository
 import com.brigada.laba1.data.repository.users.UserRepositoryMongo
 import com.brigada.laba1.data.utils.configurateClient
 import com.brigada.laba1.data.utils.configureMongoDB
 import com.brigada.laba1.domain.DataController
-import com.brigada.laba1.domain.UserController
 import com.brigada.laba1.plugins.configureHTTP
 import com.brigada.laba1.plugins.configureSerialization
 import com.brigada.laba1.routing.configureRouting
@@ -31,9 +28,23 @@ import kotlinx.serialization.json.Json
 import org.koin.dsl.module
 import org.koin.ktor.plugin.Koin
 import org.koin.logger.slf4jLogger
+import java.util.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.time.DurationUnit
+//
+val ProducerProps = Properties().apply {
+    put("bootstrap.servers", "localhost:9092")
+    put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer")
+    put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer")
+}
+
+val StreamsProps = Properties().apply {
+    put("application.id", "object-service")
+    put("bootstrap.servers", "localhost:9092")
+    put("default.key.serde", "org.apache.kafka.common.serialization.Serdes\$StringSerde")
+    put("default.value.serde", "org.apache.kafka.common.serialization.Serdes\$StringSerde")
+}
 
 class RoutingTest {
     @Test
@@ -96,8 +107,12 @@ object TestDataModule {
         }
         single<MongoDatabase>(createdAtStart = true) { configureMongoDB(configurateClient()) }
         single<UserDataRepository>(createdAtStart = true) { UserRepositoryMongo(get()) }
-        single<UserController>(createdAtStart = true) { UserController(get(), get()) }
-        single<DataController>(createdAtStart = true) { DataController(get()) }
+        single<DataController>(createdAtStart = true) {
+            DataController(
+                get(),
+                ApproveService(KafkaStreamsMessageClient(ProducerProps, StreamsProps))
+            )
+        }
     }
 
     fun Application.testModule() {

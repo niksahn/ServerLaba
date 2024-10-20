@@ -186,36 +186,6 @@ paths:
         '400':
           description: Неверный запрос
 
-  /user:
-    post:
-      summary: Добавить нового пользователя
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UserRequest'
-      responses:
-        '200':
-          description: Пользователь добавлен
-        '400':
-          description: Ошибка добавления пользователя
-
-  /user/films:
-    post:
-      summary: Обновить просмотренные фильмы пользователя
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateUserRequest'
-      responses:
-        '200':
-          description: Информация обновлена
-        '400':
-          description: Неверный запрос
-
 components:
   schemas:
     UserRequest:

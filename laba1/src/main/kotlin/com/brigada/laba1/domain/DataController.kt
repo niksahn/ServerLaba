@@ -1,10 +1,10 @@
 package com.brigada.laba1.domain
 
+import com.brigada.laba1.data.messaging.ApproveService
 import com.brigada.laba1.data.messaging.PrologMessaging
 import com.brigada.laba1.data.network.KtorNetworkClient
 import com.brigada.laba1.data.network.PrologRecommendationData
 import com.brigada.laba1.data.repository.films.FilmsDataRepository
-import com.brigada.laba1.data.repository.users.User
 import com.brigada.laba1.data.repository.users.UserDataRepository
 import com.brigada.laba1.routing.models.*
 import io.ktor.http.*
@@ -12,9 +12,14 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 
-class DataController(private val dataRepository: FilmsDataRepository) {
+class DataController(
+    private val dataRepository: FilmsDataRepository,
+    private val approveService: ApproveService
+) {
     suspend fun getAllData() = dataRepository.getFilms().map { it.toResponse() }
     suspend fun addFilm(film: AddingFIlm) = dataRepository.addFilm(film.toData())
+        ?.also { approveService.sendToApprove(it, film.userId) }
+
     suspend fun deleteFilm(id: String): Boolean = dataRepository.deleteFIlm(id)
     suspend fun getById(id: String) = dataRepository.getFilm(id)?.toResponse()
     suspend fun update(film: FilmResponse): Boolean = dataRepository.changeFilm(film.toData())
@@ -24,6 +29,7 @@ class DataController(private val dataRepository: FilmsDataRepository) {
     suspend fun getRandom(genre: String, size: Int) =
         genre.toGenre()?.let { dataRepository.getRandom(it, size) }?.map { it.toResponse() }
 
+    suspend fun exist(id: List<String>) = dataRepository.exist(id)
     suspend fun deleteAll() = dataRepository.clear()
     suspend fun count() = dataRepository.count()
 }
@@ -70,29 +76,4 @@ class RecommendationController(
         )
         return ktorClient.addPrologRecommendationData(prequest)
     }
-}
-
-class UserController(
-    private val dataRepository: FilmsDataRepository,
-    private val userRepository: UserDataRepository
-) {
-    suspend fun addUser(userRequest: UserRequest) = userRepository.addUser(
-        User(
-            id = "",
-            name = userRequest.name,
-            watchedFilms = dataRepository.exist(userRequest.watchedFilms)
-        )
-    )
-
-    suspend fun watchedFilm(filmIds: List<String>, userId: String): Boolean =
-        userRepository.getUser(userId)
-            ?.let {
-                userRepository
-                    .updateUser(
-                        it.copy(
-                            watchedFilms = it.watchedFilms.plus(dataRepository.exist(filmIds))
-                        )
-                    )
-            }
-            ?: false
 }

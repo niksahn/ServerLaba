@@ -25,6 +25,10 @@ class RedisMessageClient : Messaging {
         }
         return flow.asStateFlow()
     }
+
+    override fun push(channel: String, message: String) {
+        jedis.publish(channel, message)
+    }
 }
 
 class PrologMessaging(
@@ -36,12 +40,4 @@ class PrologMessaging(
             .value
             ?.message
             ?.let { Json.decodeFromString(ListSerializer(Recommendation.serializer()), it) }
-}
-
-interface Messaging {
-    fun subscribe(channel: String): StateFlow<Message?>
-    data class Message(
-        val channel: String,
-        val message: String
-    )
 }

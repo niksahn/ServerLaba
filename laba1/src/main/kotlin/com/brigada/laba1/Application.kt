@@ -5,7 +5,6 @@ import com.brigada.laba1.plugins.configureKoin
 import com.brigada.laba1.plugins.configureSerialization
 import com.brigada.laba1.routing.configureRecommendationRouting
 import com.brigada.laba1.routing.configureRouting
-import com.brigada.laba1.routing.configureUserRouting
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
@@ -23,6 +22,5 @@ fun Application.module() {
     configureHTTP()
     configureRouting()
     configureRecommendationRouting()
-    configureUserRouting()
     configureKoin()
 }

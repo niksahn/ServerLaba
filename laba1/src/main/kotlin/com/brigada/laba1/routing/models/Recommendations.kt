@@ -8,6 +8,7 @@ data class RecommendationsResponse(
     val user: UserResponse?,
     val films: List<FilmResponse>
 )
+
 @Serializable
 data class UserResponse(
     val id: String,

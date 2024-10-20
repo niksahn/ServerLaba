@@ -9,5 +9,6 @@ data class FilmMongo(
     val genre: Genre,
     val description: String,
     val name: String,
-    val link: String
+    val link: String,
+    val dateApprove: String?
 )

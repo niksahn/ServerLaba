@@ -1,0 +1,142 @@
+openapi: 3.0.0
+info:
+  title: API для управления пользователями
+  description: Документация API для управления пользователями и их просмотренными фильмами.
+  version: 1.0.0
+paths:
+  /user:
+    patch:
+      summary: Обновление данных пользователя
+      description: Изменяет информацию о пользователе.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: Идентификатор пользователя
+                name:
+                  type: string
+                  description: Новое имя пользователя
+                watchedFilms:
+                  type: array
+                  items:
+                    type: string
+                  description: Новый список просмотренных фильмов
+      responses:
+        '200':
+          description: Пользователь успешно обновлён
+        '404':
+          description: Пользователь не найден
+        '400':
+          description: Неверный запрос, некорректные данные
+
+    post:
+      summary: Добавление нового пользователя
+      description: Создаёт нового пользователя.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Имя пользователя
+                watchedFilms:
+                  type: array
+                  items:
+                    type: string
+                  description: Список просмотренных фильмов
+      responses:
+        '200':
+          description: Пользователь успешно добавлен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Неверный запрос, некорректные данные
+
+  /user/films:
+    post:
+      summary: Обновление фильмов пользователя
+      description: Изменяет список просмотренных фильмов пользователя.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: Идентификатор пользователя
+                watchedFilms:
+                  type: array
+                  items:
+                    type: string
+                  description: Новый список просмотренных фильмов
+      responses:
+        '200':
+          description: Фильмы успешно обновлены
+        '404':
+          description: Пользователь не найден
+        '400':
+          description: Неверный запрос, некорректные данные
+
+  /users:
+    get:
+      summary: Получение списка пользователей
+      description: Возвращает всех пользователей.
+      responses:
+        '200':
+          description: Успешно возвращён список пользователей
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+
+  /user/{id}:
+    get:
+      summary: Получение пользователя по ID
+      description: Возвращает данные пользователя по идентификатору.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            description: Идентификатор пользователя
+      responses:
+        '200':
+          description: Данные пользователя успешно получены
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Неверный запрос, некорректный идентификатор
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Идентификатор пользователя
+        name:
+          type: string
+          description: Имя пользователя
+        watchedFilms:
+          type: array
+          items:
+            type: string
+          description: Список просмотренных фильмов

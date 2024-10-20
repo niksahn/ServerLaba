@@ -12,18 +12,22 @@ data class Film(
     val genre: Genre,
     val description: String,
     val name: String,
-    val link: String
+    val link: String,
+    val dateApprove: String?
 ) {
-    companion object{
+    companion object {
         fun random() = Film(
             "",
             Genre.entries.random(),
             Random.Default.nextBytes(10).toString(),
             Random.Default.nextBytes(10).toString(),
-            "AAAAAAAAAAAAAAAAAAAAAAA"
+            "AAAAAAAAAAAAAAAAAAAAAAA",
+            dateApprove = null
         )
     }
 }
-fun FilmMongo.toDomain() = Film(id.toHexString(), genre, description, name, link)
 
-fun Film.toMongo() = FilmMongo(if (id.isBlank()) ObjectId() else ObjectId(id),genre, description, name, link)
+fun FilmMongo.toDomain() = Film(id.toHexString(), genre, description, name, link, dateApprove)
+
+fun Film.toMongo() =
+    FilmMongo(if (id.isBlank()) ObjectId() else ObjectId(id), genre, description, name, link, dateApprove)

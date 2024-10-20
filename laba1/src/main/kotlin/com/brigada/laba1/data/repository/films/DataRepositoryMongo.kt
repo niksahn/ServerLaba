@@ -28,12 +28,14 @@ class DataRepositoryMongo(database: MongoDatabase) : FilmsDataRepository {
         films.find(eq("_id", ObjectId(id))).limit(1).toList().firstOrNull()?.toDomain()
 
     override suspend fun changeFilm(newFilmData: Film): Boolean {
-        val updateParams = Updates.combine(
+        var updateParams = Updates.combine(
             Updates.set(FilmMongo::genre.name, newFilmData.genre),
             Updates.set(FilmMongo::description.name, newFilmData.description),
             Updates.set(FilmMongo::name.name, newFilmData.name),
             Updates.set(FilmMongo::link.name, newFilmData.link),
         )
+        if (newFilmData.dateApprove != null) updateParams =
+            Updates.combine(updateParams, Updates.set(FilmMongo::dateApprove.name, newFilmData.dateApprove))
         return try {
             films.updateOne(eq("_id", ObjectId(newFilmData.id)), updateParams).wasAcknowledged()
         } catch (e: Exception) {
@@ -72,5 +74,11 @@ class DataRepositoryMongo(database: MongoDatabase) : FilmsDataRepository {
 
     override suspend fun count(): Long = films.countDocuments()
     override suspend fun exist(ids: List<String>): List<String> =
-        films.find(`in`("_id", ids.map { ObjectId(it) })).toList().map { it.id.toHexString() }
+        films.find(`in`("_id", ids.map {
+            try {
+                ObjectId(it)
+            } catch (e: Exception) {
+                ObjectId()
+            }
+        })).toList().map { it.id.toHexString() }
 }
