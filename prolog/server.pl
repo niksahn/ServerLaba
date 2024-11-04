@@ -57,7 +57,7 @@ add_data_handler(Request) :-
     add_facts(Dict),
     findall(json([user=User, movie=Movie]), watched(User, Movie), UsersFacts),
     findall(json([movie=Movie, genre=Genre]), genre(Movie, Genre), FilmsFacts),
-    thread_create(findAndWrite, _, [detached(true)]),
+    thread_create(findAndWrite(Dict), _, [detached(true)]),
     reply_json(json([status='facts added', users=UsersFacts, films=FilmsFacts])).
 
 % Adding facts without duplication
@@ -72,9 +72,19 @@ add_facts(Dict) :-
             ( \+ genre(Movie, Genre) -> assertz(genre(Movie, Genre)) ; true ))).
 
 % Function to find recommendations and write to Redis
-findAndWrite :-
+findAndWrite(Dict) :-
     findall(json([user=User, recomendation=Recommendation]), recommend(User, Recommendation), Recommendations),
     atom_json_dict(RecommendationsAtom, Recommendations, []),
     write_message_to_stream(recommendations, RecommendationsAtom),
-    retract(watched(_)),
-    retract(genre(_)).
+    del_facts(Dict).
+
+del_facts(Dict) :-
+    forall(member(UserDict, Dict.users),
+           (atom_string(User, UserDict.user),
+            atom_string(Movie, UserDict.movie),
+            ( \+ watched(User, Movie) -> retract(watched(User, Movie)) ; true ))),
+    forall(member(FilmDict, Dict.films),
+           (atom_string(Movie, FilmDict.movie),
+            atom_string(Genre, FilmDict.genre),
+            ( \+ genre(Movie, Genre) -> retract(genre(Movie, Genre)) ; true ))).
+

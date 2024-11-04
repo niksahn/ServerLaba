@@ -55,8 +55,7 @@ class RecommendationController(
             }
 
     suspend fun getPrologRecommendation(user: String) =
-        prologMessaging.getLastMessage()?.filter { it.user == user }
-            ?.map { it.recomendation }
+        prologMessaging.getUserRecommendation(user)
             ?.let { dataRepository.getFilms(it) }
             ?.map { it.toResponse() }
 
