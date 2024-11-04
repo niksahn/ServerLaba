@@ -1,10 +1,11 @@
 package com.example.data.repositories
 
+import com.example.api.models.IdentifyUserResponse
+import com.example.data.enetities.Role
 import com.example.data.enetities.User
 import com.example.data.enetities.UserDataRepository
 import com.example.data.enetities.UserMongo
-import com.mongodb.client.model.Filters.eq
-import com.mongodb.client.model.Filters.`in`
+import com.mongodb.client.model.Filters.*
 import com.mongodb.client.model.Updates
 import com.mongodb.kotlin.client.coroutine.MongoDatabase
 import kotlinx.coroutines.flow.toList
@@ -26,7 +27,6 @@ class UserRepositoryMongo(database: MongoDatabase) : UserDataRepository {
         users.insertOne(user.toMongo()).insertedId?.asObjectId()?.value?.toHexString()
 
     override suspend fun updateUser(user: User): Boolean {
-
         var updateParams = Updates.combine(
             Updates.set(User::name.name, user.name),
             Updates.set(User::watchedFilms.name, user.watchedFilms),
@@ -43,9 +43,29 @@ class UserRepositoryMongo(database: MongoDatabase) : UserDataRepository {
 
     override suspend fun deleteUser(id: String): Boolean =
         users.deleteOne(eq("_id", ObjectId(id))).wasAcknowledged()
+
+    override suspend fun identifyUser(password: String, name: String): IdentifyUserResponse? =
+        users.find(and(eq("password", password), eq("name", name)))
+            .limit(1)
+            .toList()
+            .firstOrNull()
+            ?.let {
+                IdentifyUserResponse(
+                    id = it.id.toHexString(),
+                    role = Role.valueOf(it.role)
+                )
+            }
 }
 
 internal fun User.toMongo() =
-    UserMongo(if (id.isBlank()) ObjectId() else ObjectId(id), name, watchedFilms, registeredObjects)
+    UserMongo(
+        if (id.isBlank()) ObjectId() else ObjectId(id),
+        name,
+        password,
+        role.toString(),
+        watchedFilms,
+        registeredObjects
+    )
 
-internal fun UserMongo.toDomain() = User(id.toHexString(), name, watchedFilms, registeredObjects)
+internal fun UserMongo.toDomain() =
+    User(id.toHexString(), name, password, Role.valueOf(role), watchedFilms, registeredObjects)

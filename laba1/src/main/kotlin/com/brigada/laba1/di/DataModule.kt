@@ -1,5 +1,6 @@
 package com.brigada.laba1.di
 
+import com.brigada.laba1.data.caching.CacheClient
 import com.brigada.laba1.data.caching.RedisClient
 import com.brigada.laba1.data.messaging.*
 import com.brigada.laba1.data.network.KtorNetworkClient
@@ -27,7 +28,7 @@ object DataModule {
         }
         single<MongoDatabase>(createdAtStart = true) { configureMongoDB(configurateClient()) }
         single<UserDataRepository>(createdAtStart = true) { UserRepositoryKtor(configureClient()) }
-        single<PrologMessaging>(createdAtStart = true) { PrologMessaging(RedisMessageClient()) }
+        single<PrologMessaging>(createdAtStart = true) { PrologMessaging(RedisMessageClient(), RedisClient()) }
         single<RecommendationController>(createdAtStart = true) {
             RecommendationController(
                 get(),

@@ -1,5 +1,6 @@
 package com.example.api.controller
 
+import com.example.api.models.IdentifyUserRequest
 import com.example.api.models.UpdateUserRequest
 import com.example.api.models.UserRequest
 import com.example.api.models.toUser
@@ -16,7 +17,9 @@ class UserController(
             id = "",
             name = userRequest.name,
             watchedFilms = ktorNetworkClient.checkFilmExist(userRequest.watchedFilms),
-            registeredObjects = 0
+            registeredObjects = 0,
+            password = userRequest.password,
+            role = userRequest.role
         )
     )
 
@@ -39,4 +42,6 @@ class UserController(
     suspend fun updateUser(userRequest: UpdateUserRequest) = userRepository.updateUser(userRequest.toUser())
 
     suspend fun getUser(id: String) = userRepository.getUser(id)
+
+    suspend fun identifyUser(request: IdentifyUserRequest) = userRepository.identifyUser(request.password,request.name)
 }

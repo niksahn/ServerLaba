@@ -11,8 +11,8 @@ import kotlinx.serialization.json.Json
 
 class KtorNetworkClient(private val client: HttpClient = configureClient()) {
     suspend fun checkFilmExist(ids: List<String>): List<String> {
-        val request1 = client.get("http://app-1:8080/film/exist") {
-       // val request1 = client.get("http://localhost:8080/film/exist") {
+        val request1 = client.get("http://servers-app-1:8080/film/exist") {
+       //val request1 = client.get("http://localhost:8080/film/exist") {
             contentType(ContentType.Application.Json)
             setBody(ids)
         }

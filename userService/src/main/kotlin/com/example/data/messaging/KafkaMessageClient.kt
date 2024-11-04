@@ -24,20 +24,6 @@ val StreamsProps = Properties().apply {
     put("default.value.serde", "org.apache.kafka.common.serialization.Serdes\$StringSerde")
 }
 
-//val ProducerProps = Properties().apply {
-//    put("application.id", "users-service")
-//    put("bootstrap.servers", "localhost:9092")
-//    put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer")
-//    put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer")
-//}
-//
-//val StreamsProps = Properties().apply {
-//    put("application.id", "users-service")
-//    put("bootstrap.servers", "localhost:9092")
-//    put("default.key.serde", "org.apache.kafka.common.serialization.Serdes\$StringSerde")
-//    put("default.value.serde", "org.apache.kafka.common.serialization.Serdes\$StringSerde")
-//}
-
 class KafkaStreamsMessageClient(
     producerProps: Properties = ProducerProps,
     private val streamsProps: Properties = StreamsProps

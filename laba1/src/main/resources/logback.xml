@@ -7,6 +7,12 @@
     <root level="trace">
         <appender-ref ref="STDOUT"/>
     </root>
+    <!-- Устанавливаем уровень логгирования для пакетов Kafka на WARN -->
+    <logger name="org.apache.kafka" level="WARN"/>
+    <logger name="org.apache.kafka.clients.consumer" level="WARN"/>
+    <logger name="org.apache.kafka.clients.producer" level="WARN"/>
+    <logger name="org.apache.kafka.streams" level="WARN"/>
+
     <logger name="org.eclipse.jetty" level="INFO"/>
     <logger name="io.netty" level="INFO"/>
 </configuration>

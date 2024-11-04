@@ -56,7 +56,7 @@ class PrologMessaging(
         }
     }
 
-    fun getUserRecommendation(id: String) = cacheClient.get(id, Recommendation.serializer())
+    fun getUserRecommendation(id: String) = cacheClient.get(id, ListSerializer(Recommendation.serializer()))
 
     fun getLastMessage() = recommendationChannel
             .value

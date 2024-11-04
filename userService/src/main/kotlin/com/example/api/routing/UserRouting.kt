@@ -1,6 +1,7 @@
 package com.example.api.routing
 
 import com.example.api.controller.UserController
+import com.example.api.models.IdentifyUserRequest
 import com.example.api.models.UpdateUserFilmRequest
 import com.example.api.models.UpdateUserRequest
 import com.example.api.models.UserRequest
@@ -52,6 +53,18 @@ fun Application.configureUserRouting() {
             call.receive<List<String>>()
                 .let { controller.getUsers(it) }
                 .let { call.respond(HttpStatusCode.OK, it) }
+        }
+
+        post("users/identify") {
+            try {
+                call.receive<IdentifyUserRequest>()
+                    .let { controller.identifyUser(it) }
+                    .takeIf { it != null }
+                    ?.let { call.respond(HttpStatusCode.OK, it) }
+                    ?: call.respond(HttpStatusCode.Unauthorized)
+            } catch (e: Exception) {
+                call.respond(HttpStatusCode.BadRequest)
+            }
         }
 
         patch("user") {
