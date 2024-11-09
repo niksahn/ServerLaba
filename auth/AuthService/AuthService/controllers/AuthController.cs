@@ -92,9 +92,14 @@ namespace AuthService.Controllers
             var userName = principal.FindFirst("user_id").Value;
             var storedToken = _tokens.Find(t => t.User_id.ToString() == userName).FirstOrDefault();
 
-            if (storedToken == null || storedToken.AccessToken != request.AccessToken || !principal.IsInRole(request.Role))
+            if (storedToken == null || storedToken.AccessToken != request.AccessToken )
             {
                 return Unauthorized("Access token invalid or expired");
+            }
+
+            if(!principal.IsInRole(request.Role))
+            {
+                            return Forbid("Wrong role");
             }
 
             return Ok();
