@@ -1,0 +1,53 @@
+/.idea/
+/auth/AuthService/.vs/AuthService/FileContentIndex
+/auth/AuthService/AuthService/obj/
+
+# Общие правила для всех проектов .NET
+bin/
+obj/
+
+# Пользовательские файлы Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Настройки Rider/JetBrains
+.idea/
+*.sln.iml
+
+# Логи, блокировки, базовые настройки, сборки и т. д.
+*.log
+*.lock.json
+*.DS_Store
+*.directory
+Thumbs.db
+.vscode/
+
+# Конфигурации сборки и публикации
+project.lock.json
+project.fragment.lock.json
+artifacts/
+Generated\ Files/
+
+# Библиотеки и зависимости
+*.nupkg
+*.snupkg
+packages/
+.nuget/
+node_modules/
+jspm_packages/
+
+# Кэширование и временные файлы Visual Studio
+ipch/
+_ReSharper*/
+*_ReSharper.Caches/
+TestResults/
+ClientBin/
+*.cache
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+/AuthService/.vs/
