@@ -97,9 +97,9 @@ namespace AuthService.Controllers
                 return Unauthorized("Access token invalid or expired");
             }
 
-            if(!principal.IsInRole(request.Role))
+            if(!request.Role.Any(x=>principal.IsInRole(x)))
             {
-                            return Forbid("Wrong role");
+               return Forbid("Wrong role");
             }
 
             return Ok();
@@ -191,7 +191,7 @@ namespace AuthService.Controllers
     public class IdentifyRequest
     {
         public string AccessToken { get; set; }
-        public string Role { get; set; }
+        public List<string> Role { get; set; }
     }
 
     public class IdentifyResponse

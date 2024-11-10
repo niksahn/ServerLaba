@@ -3,6 +3,7 @@ version: '3.8'
 services:
 
   zookeeper:
+    container_name: servers-zookeeper-1
     image: confluentinc/cp-zookeeper:latest
     ports:
       - "2181:2181"
@@ -15,6 +16,7 @@ services:
 
   kafka:
     image: confluentinc/cp-kafka:latest
+    container_name: servers-kafka-1
     ports:
       - "9092:9092"
     environment:
@@ -42,6 +44,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
+    container_name: servers-app-1
+
     environment:
       MONGO_URL: "mongodb://mongodb:27017"
     networks:
@@ -50,6 +54,8 @@ services:
       - mongodb
 
   user-service:
+    container_name: servers-user-service-1
+
     build:
       context: ./userService
       dockerfile: Dockerfile
@@ -63,6 +69,7 @@ services:
       - mongodb
 
   authservice:
+    container_name: servers-authservice-1
     build: 
       context: ./auth/AuthService
       dockerfile: Dockerfile
@@ -76,6 +83,7 @@ services:
       - app-network
 
   mongodb:
+    container_name: servers-mongodb-1
     image: mongo:latest
     ports:
       - "27017:27017"
