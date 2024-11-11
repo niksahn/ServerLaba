@@ -68,6 +68,17 @@ services:
     depends_on:
       - mongodb
 
+  api-gateway:
+    container_name: api-gateway
+
+    build:
+      context: ./tipaGayTWay
+      dockerfile: Dockerfile
+    ports:
+      - "4040:4040"
+    networks:
+      - app-network
+
   authservice:
     container_name: servers-authservice-1
     build: 

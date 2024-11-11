@@ -6,23 +6,41 @@ from fastapi import Body, APIRouter
 import httpx
 from fastapi import HTTPException
 from fastapi import status
+from pydantic import BaseModel
+import json
 
-access_levels = ['USER', 'MODERATOR', 'ADMIN']
+
+class AuthModel(BaseModel):
+    username: str
+    password: str
+
+
+class IdentifyModel(BaseModel):
+    accessToken: str
+    role: list[str]
+
+
+class LogoutModel(BaseModel):
+    token: str
+
+
+class RefreshModel(BaseModel):
+    refreshToken: str
+
+
+class DeleteUserModel(BaseModel):
+    id: str
+    token: str
+
+
+#service = "http://servers-authservice-1:8010"
 
 service = "http://localhost:8010"
+userAccess = ["USER", "MODERATOR", "ADMIN"]
 
+adminAccess = ["ADMIN"]
 
-class UserRole(Enum):
-    ADMIN = "ADMIN"
-    USER = "USER"
-    MODERATOR = "MODERATOR"
-
-
-userAccess = [UserRole.USER, UserRole.MODERATOR, UserRole.ADMIN]
-
-adminAccess = [UserRole.ADMIN]
-
-moderatorAccess = [UserRole.ADMIN, UserRole.MODERATOR]
+moderatorAccess = ["MODERATOR", "ADMIN"]
 
 
 async def authorization(roles: [List[str]], token: str = None):
@@ -30,7 +48,7 @@ async def authorization(roles: [List[str]], token: str = None):
         try:
             # Отправляем токен и требуемые роли на сервис авторизации
             response = await client.post(
-                "http://localhost:8010/auth/identify",
+                f"{service}/auth/identify",
                 json={"accessToken": token, "role": roles}  # Отправляем роли, если они заданы
             )
             print(response)
@@ -51,25 +69,25 @@ router = APIRouter()
 
 
 @router.post("/auth/refresh", tags=["auth"])
-async def refresh_token(data: dict):
+async def refresh_token(data: RefreshModel):
     # Работа без проверки токена
-    response = requests.post(f"{service}/auth/refresh", json=data)
+    response = requests.post(f"{service}/auth/refresh", json=data.dict())
     return response.json()
 
 
 @router.post("/auth/identify", tags=["auth"])
-async def identify_user(data: dict):
-    response = requests.post(f"{service}/auth/identify", json=data)
+async def identify_user(data: IdentifyModel):
+    response = requests.post(f"{service}/auth/identify", json=data.dict())
     return response.json()
 
 
 @router.post("/auth", tags=["auth"])
-async def authenticate_user(data: dict):
-    response = requests.post(f"{service}/auth", json=data)
+async def authenticate_user(data: AuthModel):
+    response = requests.post(f"{service}/auth", json=data.dict())
     return response.json()
 
 
 @router.post("/auth/logout", tags=["auth"])
-async def logout_user(data: dict):
-    response = requests.post(f"{service}/auth/logout", json=data)
+async def logout_user(data: LogoutModel):
+    response = requests.post(f"{service}/auth/logout", json=data.dict())
     return response.json()
