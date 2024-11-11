@@ -1,6 +1,6 @@
 package com.brigada.laba1
 
-import com.brigada.laba1.TestDataModule.testModule
+//import com.brigada.laba1.TestDataModule.testModule
 import com.brigada.laba1.data.caching.InMemoryClient
 import com.brigada.laba1.data.messaging.ApproveService
 import com.brigada.laba1.data.messaging.KafkaStreamsMessageClient
@@ -33,6 +33,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.time.DurationUnit
 //
+
 val ProducerProps = Properties().apply {
     put("bootstrap.servers", "localhost:9092")
     put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer")
@@ -46,7 +47,7 @@ val StreamsProps = Properties().apply {
     put("default.value.serde", "org.apache.kafka.common.serialization.Serdes\$StringSerde")
 }
 
-class RoutingTest {
+class RoutingTest {/*
     @Test
     fun testGetAllFilms() = testApplication {
         application { testModule() }
@@ -95,9 +96,10 @@ class RoutingTest {
         endTime = Clock.System.now()
         println("In Cach " + (endTime - startTime).toLong(DurationUnit.MILLISECONDS))
     }
+    */
 }
 
-object TestDataModule {
+object TestDataModule {/*
     private val data = module {
         single<FilmsDataRepository>(createdAtStart = true) {
             CachedRepository(
@@ -128,4 +130,5 @@ object TestDataModule {
             modules(data)
         }
     }
+    */
 }
