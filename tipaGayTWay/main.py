@@ -1,6 +1,3 @@
-from fastapi import FastAPI
-import os
-from typing import Optional
 import uvicorn
 
 if __name__ == '__main__':
