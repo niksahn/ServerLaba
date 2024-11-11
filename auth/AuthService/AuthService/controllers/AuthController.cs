@@ -31,12 +31,10 @@ namespace AuthService.Controllers
         [HttpPost("")]
         public async Task<IActionResult> Authenticate([FromBody] LoginRequest request)
         {
-            // Validate from external user service (dummy for demo)
             var user_id = await ValidateUser(request.UserName, request.Password);
             if (user_id == null) return BadRequest("Invalid credentials");
 
             var tokenPair = GenerateTokens(user_id.Id, user_id.Role);
-            // Получаем документ, который будет заменен, по его User_id
             var filter = Builders<Token>.Filter.Eq(t => t.User_id, user_id.Id);
 
             // Проверка, существует ли уже такой документ

@@ -6,8 +6,7 @@ namespace AuthService.Models
     public class Token
     {
         [BsonId]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public string Id { get; set; }
+        public ObjectId Id { get; set; } = ObjectId.GenerateNewId();
 
         public string User_id { get; set; }
         public string AccessToken { get; set; }
