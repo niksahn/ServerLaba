@@ -31,12 +31,10 @@ namespace AuthService.Controllers
         [HttpPost("")]
         public async Task<IActionResult> Authenticate([FromBody] LoginRequest request)
         {
-            // Validate from external user service (dummy for demo)
             var user_id = await ValidateUser(request.UserName, request.Password);
             if (user_id == null) return BadRequest("Invalid credentials");
 
             var tokenPair = GenerateTokens(user_id.Id, user_id.Role);
-            // Получаем документ, который будет заменен, по его User_id
             var filter = Builders<Token>.Filter.Eq(t => t.User_id, user_id.Id);
 
             // Проверка, существует ли уже такой документ
@@ -92,9 +90,14 @@ namespace AuthService.Controllers
             var userName = principal.FindFirst("user_id").Value;
             var storedToken = _tokens.Find(t => t.User_id.ToString() == userName).FirstOrDefault();
 
-            if (storedToken == null || storedToken.AccessToken != request.AccessToken || !principal.IsInRole(request.Role))
+            if (storedToken == null || storedToken.AccessToken != request.AccessToken )
             {
                 return Unauthorized("Access token invalid or expired");
+            }
+
+            if(!request.Role.Any(x=>principal.IsInRole(x)))
+            {
+               return Forbid("Wrong role");
             }
 
             return Ok();
@@ -186,7 +189,7 @@ namespace AuthService.Controllers
     public class IdentifyRequest
     {
         public string AccessToken { get; set; }
-        public string Role { get; set; }
+        public List<string> Role { get; set; }
     }
 
     public class IdentifyResponse

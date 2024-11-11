@@ -7,9 +7,10 @@ import io.ktor.http.*
 import io.ktor.server.testing.*
 import kotlin.test.*
 
-class ApplicationTest {
+class ApplicationTest {/*
     @Test
     fun testRoot() = testApplication {
 
     }
+    */
 }
