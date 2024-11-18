@@ -13,7 +13,7 @@ import redis.clients.jedis.JedisPooled
 import redis.clients.jedis.JedisPubSub
 
 class RedisMessageClient : Messaging {
-    private val jedis: JedisPooled = JedisPooled("redis", 6379)
+    private val jedis: JedisPooled = JedisPooled("localhost", 6379)
 
     override fun subscribe(channel: String): StateFlow<Messaging.Message?> {
         val flow = MutableStateFlow<Messaging.Message?>(null)
@@ -45,21 +45,22 @@ class PrologMessaging(
                 .filterNotNull()
                 .map { Json.decodeFromString(ListSerializer(Recommendation.serializer()), it.message) }
                 .collect {
-                    it.onEach { recommendation ->
-                        cacheClient.set(
-                            recommendation.user,
-                            value = recommendation.recomendation,
-                            type = String.serializer()
-                        )
-                    }
+                    it.groupBy { it.user }
+                        .onEach { recommendation ->
+                            cacheClient.set(
+                                recommendation.key,
+                                value = recommendation.value.map { it.recomendation },
+                                type = ListSerializer(String.serializer())
+                            )
+                        }
                 }
         }
     }
 
-    fun getUserRecommendation(id: String) = cacheClient.get(id, ListSerializer(Recommendation.serializer()))
+    fun getUserRecommendation(id: String) = cacheClient.get(id, ListSerializer(String.serializer()))
 
     fun getLastMessage() = recommendationChannel
-            .value
-            ?.message
-            ?.let { Json.decodeFromString(ListSerializer(Recommendation.serializer()), it) }
+        .value
+        ?.message
+        ?.let { Json.decodeFromString(ListSerializer(Recommendation.serializer()), it) }
 }

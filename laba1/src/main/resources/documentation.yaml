@@ -158,19 +158,6 @@ paths:
         '400':
           description: Неверный запрос
 
-  /recommendations:
-    get:
-      summary: Получить общие рекомендации
-      responses:
-        '200':
-          description: Общие рекомендации
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/RecommendationsResponse'
-
   /recommendations/addRequest:
     post:
       summary: Добавить запрос для получения рекомендаций

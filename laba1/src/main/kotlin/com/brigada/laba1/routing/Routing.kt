@@ -77,7 +77,7 @@ fun Application.configureRouting() {
             call.respond(HttpStatusCode.OK, controller.count())
         }
 
-        get("film/exist"){
+        get("film/exist") {
             try {
                 call.receive<List<String>>()
                     .let { controller.exist(it) }
@@ -89,19 +89,16 @@ fun Application.configureRouting() {
     }
 }
 
-fun Application.configureRecommendationRouting(){
+fun Application.configureRecommendationRouting() {
     val controller: RecommendationController by inject<RecommendationController>()
     routing {
         get("/recommendations/{user}") {
             call.pathParameters["user"]
-                ?.let { controller.getPrologRecommendation(it) }
-                ?.let { call.respond(HttpStatusCode.OK, it) }
+                ?.let {
+                    controller.getPrologRecommendation(it)
+                        .let { call.respond(HttpStatusCode.OK, it ?: emptyList()) }
+                }
                 ?: call.respond(HttpStatusCode.BadRequest)
-        }
-
-        get("/recommendations") {
-            controller.getPrologRecommendations()
-                .let { call.respond(HttpStatusCode.OK, it ?: "null") }
         }
 
         post("/recommendations/addRequest") {

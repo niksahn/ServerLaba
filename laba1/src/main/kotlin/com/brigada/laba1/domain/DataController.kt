@@ -40,23 +40,22 @@ class RecommendationController(
     private val prologMessaging: PrologMessaging,
     private val ktorClient: KtorNetworkClient
 ) {
-    suspend fun getPrologRecommendations() =
-        prologMessaging
-            .getLastMessage()
-            ?.groupBy { it.user }
-            ?.mapValues { it.value.map { it.recomendation } }
-            ?.mapValues { CoroutineScope(Dispatchers.IO).async { dataRepository.getFilms(it.value) } }
-            ?.mapKeys { CoroutineScope(Dispatchers.IO).async { userRepository.getUser(it.key) } }
-            ?.map {
-                RecommendationsResponse(
-                    user = it.key.await()?.toResponse(),
-                    films = it.value.await().map { it.toResponse() }
-                )
-            }
+//    suspend fun getPrologRecommendations() =
+//        prologMessaging
+//            .getLastMessage()
+//            ?.groupBy { it.user }
+//            ?.mapValues { it.value.map { it.recomendation } }
+//            ?.mapValues { CoroutineScope(Dispatchers.IO).async { dataRepository.getFilms(it.value) } }
+//            ?.mapKeys { CoroutineScope(Dispatchers.IO).async { userRepository.getUser(it.key) } }
+//            ?.map {
+//                RecommendationsResponse(
+//                    user = it.key.await()?.toResponse(),
+//                    films = it.value.await().map { it.toResponse() }
+//                )
+//            }
 
     suspend fun getPrologRecommendation(user: String) =
         prologMessaging.getUserRecommendation(user)
-            ?.map { it.recomendation }
             ?.let { dataRepository.getFilms(it) }
             ?.map { it.toResponse() }
 

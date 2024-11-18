@@ -1,8 +1,8 @@
-from auth import authorization, userAccess, adminAccess, moderatorAccess
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel
-from fastapi import APIRouter, Header
-import requests
-from pydantic import BaseModel
+
+from auth import userAccess, adminAccess, authorize_user, get_token
+from reqHead import forward_request
 
 service = "http://servers-user-service-1:8070"
 
@@ -27,38 +27,63 @@ class UserFilmsUpdateModel(BaseModel):
     watchedFilms: list
 
 
+# Обновление пользователя
 @router.patch("/user", tags=["users"])
-async def update_user(data: UserUpdateModel, token: str = Header(None)):
-    # Проверка, что пользователь имеет доступ на редактирование
-    await authorization(adminAccess, token=token)
-    response = requests.patch(f"{service}/user", json=data.dict())
-    return response.json()
+async def update_user(
+        data: UserUpdateModel,
+        _: None = Depends(lambda token=Depends(get_token): authorize_user(adminAccess, token))
+):
+    return await forward_request(
+        method="PATCH",
+        url=f"{service}/user",
+        json_data=data.dict()
+    )
 
 
+# Создание пользователя
 @router.post("/user", tags=["users"])
-async def create_user(data: UserCreateModel, token: str = Header(None)):
-    # Создание пользователя может требовать доступ администратора
-    await authorization(userAccess, token=token)
-    response = requests.post(f"{service}/user", json=data.dict())
-    return response.json()
+async def create_user(
+        data: UserCreateModel,
+        _: None = Depends(lambda token=Depends(get_token): authorize_user(userAccess, token))
+):
+    return await forward_request(
+        method="POST",
+        url=f"{service}/user",
+        json_data=data.dict()
+    )
 
 
+# Обновление списка фильмов пользователя
 @router.post("/user/films", tags=["users"])
-async def update_user_films(data: UserFilmsUpdateModel, token: str = Header(None)):
-    await authorization(userAccess, token=token)
-    response = requests.post(f"{service}/user/films", json=data.dict())
-    return response.json()
+async def update_user_films(
+        data: UserFilmsUpdateModel,
+        _: None = Depends(lambda token=Depends(get_token): authorize_user(userAccess, token))
+):
+    return await forward_request(
+        method="POST",
+        url=f"{service}/user/films",
+        json_data=data.dict()
+    )
 
 
+# Получение списка пользователей
 @router.get("/users", tags=["users"])
-async def get_users(token: str = Header(None)):
-    await authorization(adminAccess, token=token)
-    response = requests.get(f"{service}/users")
-    return response.json()
+async def get_users(
+        _: None = Depends(lambda token=Depends(get_token): authorize_user(adminAccess, token))
+):
+    return await forward_request(
+        method="GET",
+        url=f"{service}/users"
+    )
 
 
+# Получение информации о пользователе по ID
 @router.get("/user/{id}", tags=["users"])
-async def get_user_by_id(id: str, token: str = Header(None)):
-    await authorization(userAccess, token=token)
-    response = requests.get(f"{service}/user/{id}")
-    return response.json()
+async def get_user_by_id(
+        id: str,
+        _: None = Depends(lambda token=Depends(get_token): authorize_user(userAccess, token))
+):
+    return await forward_request(
+        method="GET",
+        url=f"{service}/user/{id}"
+    )

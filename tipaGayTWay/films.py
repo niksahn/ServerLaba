@@ -1,12 +1,14 @@
 import requests
-from fastapi import APIRouter, Header
+from fastapi import APIRouter, Header, Depends
 
-from auth import authorization, userAccess, moderatorAccess
+from auth import authorization, userAccess, moderatorAccess, authorize_user, get_token
 from pydantic import BaseModel
+from reqHead import forward_request
 
-#service = "http://servers-app-1:8080"
+service = "http://servers-app-1:8080"
 router = APIRouter()
-service = "http://localhost:8080"
+
+#service = "http://localhost:8080"
 
 
 class FilmUpdateModel(BaseModel):
@@ -26,69 +28,88 @@ class FilmAddModel(BaseModel):
 
 class RecommendationRequestModel(BaseModel):
     users: list[str]
-    selectedFilmCount: int
+    selectedFilmsCount: int
 
 
-# Маршруты для фильмов
 @router.get("/films", tags=["films"])
-async def get_films(token: str = Header(None)):
-    await authorization(userAccess, token=token)
-    response = requests.get(f"{service}/films")
-    return response.json()
+async def get_films(_: None = Depends(lambda token=Depends(get_token): authorize_user(userAccess, token))):
+    return await forward_request(
+        method="GET",
+        url=f"{service}/films"
+    )
 
 
+# Получение информации о фильме по ID
 @router.get("/film/{id}", tags=["films"])
-async def get_film(id: str, token: str = Header(None)):
-    await authorization(userAccess, token=token)
-    response = requests.get(f"{service}/film/{id}")
-    return response.json()
+async def get_film(id: str, _: None = Depends(lambda token=Depends(get_token): authorize_user(userAccess, token))):
+    return await forward_request(
+        method="GET",
+        url=f"{service}/film/{id}"
+    )
 
 
+# Удаление всех фильмов
 @router.delete("/films", tags=["films"])
-async def delete_all_films(token: str = Header(None)):
-    await authorization(userAccess, token=token)
-    response = requests.delete(f"{service}/films")
-    return response.json()
+async def delete_all_films(_: None = Depends(lambda token=Depends(get_token): authorize_user(userAccess, token))):
+    return await forward_request(
+        method="DELETE",
+        url=f"{service}/films"
+    )
 
 
+# Удаление фильма по ID
 @router.delete("/film/{id}", tags=["films"])
-async def delete_film(id: str, token: str = Header(None)):
-    await authorization(moderatorAccess, token=token)
-    response = requests.delete(f"{service}/film/{id}")
-    return response.json()
+async def delete_film(id: str,
+                      _: None = Depends(lambda token=Depends(get_token): authorize_user(moderatorAccess, token))):
+    return await forward_request(
+        method="DELETE",
+        url=f"{service}/film/{id}"
+    )
 
 
+# Обновление информации о фильме
 @router.post("/film/update", tags=["films"])
-async def update_film(film_data: FilmUpdateModel, token: str = Header(None)):
-    await authorization(moderatorAccess, token=token)
-    response = requests.post(f"{service}/film/update", json=film_data.dict())
-    return response.json()
+async def update_film(
+        film_data: FilmUpdateModel,
+        _: None = Depends(lambda token=Depends(get_token): authorize_user(moderatorAccess, token))
+):
+    return await forward_request(
+        method="POST",
+        url=f"{service}/film/update",
+        json_data=film_data.dict()
+    )
 
 
+# Добавление нового фильма
 @router.post("/film/add", tags=["films"])
-async def add_film(film_data: FilmAddModel, token: str = Header(None)):
-    await authorization(moderatorAccess, token=token)
-    response = requests.post(f"{service}/film/add", json=film_data.dict())
-    return response.json()
+async def add_film(film_data: FilmAddModel,
+                   _: None = Depends(lambda token=Depends(get_token): authorize_user(moderatorAccess, token))):
+    return await forward_request(
+        method="POST",
+        url=f"{service}/film/add",
+        json_data=film_data.dict()
+    )
 
 
-# Маршруты для рекомендаций
+# Получение рекомендаций для пользователя
 @router.get("/recommendations/{user}", tags=["recommendations"])
-async def get_recommendations_for_user(user: str, token: str = Header(None)):
-    await authorization(userAccess, token=token)
-    response = requests.get(f"{service}/recommendations/{user}")
-    return response.json()
+async def get_recommendations_for_user(
+        user: str,
+        _: None = Depends(lambda token=Depends(get_token): authorize_user(moderatorAccess, token))):
+    return await forward_request(
+        method="GET",
+        url=f"{service}/recommendations/{user}"
+    )
 
 
-@router.get("/recommendations", tags=["recommendations"])
-async def get_recommendations(token: str = Header(None)):
-    await authorization(userAccess, token=token)
-    response = requests.get(f"{service}/recommendations")
-    return response.json()
-
-
+# Добавление запроса на рекомендации
 @router.post("/recommendations/addRequest", tags=["recommendations"])
-async def add_recommendation_request(request_data: RecommendationRequestModel, token: str = Header(None)):
-    await authorization(userAccess, token=token)
-    response = requests.post(f"{service}/recommendations/addRequest", json=request_data.dict())
-    return {}
+async def add_recommendation_request(
+        request_data: RecommendationRequestModel,
+        _: None = Depends(lambda token=Depends(get_token): authorize_user(userAccess, token))
+):
+    return await forward_request(
+        method="POST",
+        url=f"{service}/recommendations/addRequest",
+        json_data=request_data.dict()
+    )

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
+using MongoDB.Driver.Linq;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -54,7 +55,7 @@ namespace AuthService.Controllers
         [HttpPost("logout")]
         public IActionResult Logout([FromBody] LogoutRequest request)
         {
-            if (_tokens.DeleteOne(t => t.User_id == request.UserId).IsAcknowledged) return Ok();
+            if (_tokens.DeleteOne(t => t.AccessToken == request.token).IsAcknowledged) return Ok();
             else return BadRequest();
         }
 
@@ -63,12 +64,13 @@ namespace AuthService.Controllers
         {
             var token = _tokens.Find(t => t.RefreshToken == request.RefreshToken).FirstOrDefault();
 
-            if (token == null || token.RefreshTokenExpiryTime <= DateTime.UtcNow)
+            var principal = GetPrincipalFromExpiredToken(request.RefreshToken);
+
+            if (token == null)
             {
                 return BadRequest("Invalid or expired refresh token");
             }
-             var principal = GetPrincipalFromExpiredToken(token.AccessToken);
-            var newTokens = GenerateTokens(token.User_id, principal.FindFirstValue(ClaimTypes.Role));
+             var newTokens = GenerateTokens(token.User_id, principal.FindFirstValue(ClaimTypes.Role));
             _tokens.ReplaceOne(t => t.User_id == token.User_id, newTokens);
 
             return Ok(new { newTokens.AccessToken, newTokens.RefreshToken });
@@ -85,7 +87,7 @@ namespace AuthService.Controllers
                 principal = null;
             }
 
-            if (principal == null) return BadRequest("Invalid access token");
+            if (principal == null) return Unauthorized("Invalid access token");
 
             var userName = principal.FindFirst("user_id").Value;
             var storedToken = _tokens.Find(t => t.User_id.ToString() == userName).FirstOrDefault();
@@ -99,32 +101,30 @@ namespace AuthService.Controllers
             {
                return Forbid("Wrong role");
             }
-
             return Ok();
         }
 
         private Token GenerateTokens(string userName, string role)
         {
-            var accessToken = GenerateAccessToken(userName, role);
-            var refreshToken = GenerateRefreshToken();
+            var accessToken = GenerateAccessToken(userName, role, AccessTokenDurationMinutes);
+            var refreshToken = GenerateAccessToken(userName, role, RefreshTokenDurationMinutes);
 
             return new Token
             {
                 User_id = userName,
                 AccessToken = accessToken,
                 RefreshToken = refreshToken,
-                RefreshTokenExpiryTime = DateTime.UtcNow.AddMinutes(RefreshTokenDurationMinutes)
             };
         }
 
-        private string GenerateAccessToken(string userName, string role)
+        private string GenerateAccessToken(string userName, string role, int lifeTime )
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_secretKey);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new[] { new Claim("user_id", userName), new Claim(ClaimTypes.Role, role) }),
-                Expires = DateTime.UtcNow.AddMinutes(AccessTokenDurationMinutes),
+                Expires = DateTime.UtcNow.AddMinutes(lifeTime),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
 
@@ -178,7 +178,7 @@ namespace AuthService.Controllers
 
     public class LogoutRequest
     {
-        public string UserId { get; set; }
+        public string token { get; set; }
     }
 
     public class RefreshRequest

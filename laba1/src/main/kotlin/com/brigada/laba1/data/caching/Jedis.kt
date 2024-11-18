@@ -11,6 +11,7 @@ class RedisClient(
         try {
             jedis.get(key)?.let { Json.decodeFromString(type, it) }
         } catch (e: Exception) {
+            e.printStackTrace()
             null
         }
 
