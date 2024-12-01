@@ -8,7 +8,8 @@ from reqHead import forward_request
 service = "http://servers-app-1:8080"
 router = APIRouter()
 
-#service = "http://localhost:8080"
+
+# service = "http://localhost:8080"
 
 
 class FilmUpdateModel(BaseModel):
@@ -24,6 +25,14 @@ class FilmAddModel(BaseModel):
     description: str
     name: str
     link: str
+
+
+class FilmAddModel1(BaseModel):
+    genre: str
+    description: str
+    name: str
+    link: str
+    userId: str
 
 
 class RecommendationRequestModel(BaseModel):
@@ -83,11 +92,16 @@ async def update_film(
 # Добавление нового фильма
 @router.post("/film/add", tags=["films"])
 async def add_film(film_data: FilmAddModel,
-                   _: None = Depends(lambda token=Depends(get_token): authorize_user(moderatorAccess, token))):
+                   auth=Depends(lambda token=Depends(get_token): authorize_user(moderatorAccess, token))):
     return await forward_request(
         method="POST",
         url=f"{service}/film/add",
-        json_data=film_data.dict()
+        json_data=FilmAddModel1(genre=film_data.genre,
+                                description=film_data.description,
+                                name=film_data.name,
+                                link=film_data.link,
+                                userId=auth["userName"]
+                                ).dict()
     )
 
 

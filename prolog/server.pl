@@ -78,8 +78,8 @@ findAndWrite(Dict) :-
    % connect_to_redis(Connection),
    % write_to_redis(Connection, Recommendations),                 % ���������� ������������
    % redis_disconnect(Connection),
-    write_message_to_stream(recommendations, RecommendationsAtom).
-	% , del_facts(Dict).
+    write_message_to_stream(recommendations, RecommendationsAtom)
+ , del_facts(Dict).
 
 
 del_facts(Dict) :-

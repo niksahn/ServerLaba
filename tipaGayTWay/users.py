@@ -17,9 +17,14 @@ class UserUpdateModel(BaseModel):
 
 class UserCreateModel(BaseModel):
     name: str
-    watchedFilms: list
-    role: str
     password: str
+
+
+class UserCreateModel1(BaseModel):
+    name: str
+    password: str
+    role: str
+    watchedFilms: list
 
 
 class UserFilmsUpdateModel(BaseModel):
@@ -42,14 +47,11 @@ async def update_user(
 
 # Создание пользователя
 @router.post("/user", tags=["users"])
-async def create_user(
-        data: UserCreateModel,
-        _: None = Depends(lambda token=Depends(get_token): authorize_user(userAccess, token))
-):
+async def create_user(data: UserCreateModel):
     return await forward_request(
         method="POST",
         url=f"{service}/user",
-        json_data=data.dict()
+        json_data=UserCreateModel1(name=data.name, password=data.password, role="USER", watchedFilms=[]).dict()
     )
 
 

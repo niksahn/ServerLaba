@@ -1,3 +1,4 @@
+
 import requests
 from fastapi import APIRouter, Header
 from fastapi import HTTPException
@@ -32,7 +33,7 @@ class DeleteUserModel(BaseModel):
 
 service = "http://servers-authservice-1:8010"
 
-#service = "http://localhost:8010"
+# service = "http://localhost:8010"
 userAccess = ["USER", "MODERATOR", "ADMIN"]
 
 adminAccess = ["ADMIN"]
@@ -52,7 +53,7 @@ def get_token(auth: str = Header(...)):
 
 # Определите функцию-зависимость для авторизации
 def authorize_user(roles: list, token: str = get_token):
-    authorization(roles, auth_token=token)
+    return authorization(roles, auth_token=token)
 
 
 def authorization(roles: list, auth_token: str = None):
@@ -62,10 +63,11 @@ def authorization(roles: list, auth_token: str = None):
             f"{service}/auth/identify",
             json={"accessToken": auth_token, "role": roles}
         )
+        print(f"{response} {response.content}")
 
         # Проверяем статус код
         if response.status_code == status.HTTP_200_OK:
-            return True  # Токен действителен, и пользователь имеет нужные роли
+            return response.json() # Токен действителен, и пользователь имеет нужные роли
 
         # если статус 400 или больше, выбрасываем соответствующую ошибку
         if response.status_code >= 400:

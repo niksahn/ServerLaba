@@ -6,6 +6,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
@@ -13,7 +14,7 @@ import redis.clients.jedis.JedisPooled
 import redis.clients.jedis.JedisPubSub
 
 class RedisMessageClient : Messaging {
-    private val jedis: JedisPooled = JedisPooled("localhost", 6379)
+    private val jedis: JedisPooled = JedisPooled("redis", 6379)
 
     override fun subscribe(channel: String): StateFlow<Messaging.Message?> {
         val flow = MutableStateFlow<Messaging.Message?>(null)
@@ -49,18 +50,21 @@ class PrologMessaging(
                         .onEach { recommendation ->
                             cacheClient.set(
                                 recommendation.key,
-                                value = recommendation.value.map { it.recomendation },
-                                type = ListSerializer(String.serializer())
+                                value = RecommendationD(recommendation.value.map { it.recomendation }),
+                                type = RecommendationD.serializer()
                             )
                         }
                 }
         }
     }
 
-    fun getUserRecommendation(id: String) = cacheClient.get(id, ListSerializer(String.serializer()))
+    fun getUserRecommendation(id: String) = cacheClient.get(id, RecommendationD.serializer())?.films
 
     fun getLastMessage() = recommendationChannel
         .value
         ?.message
-        ?.let { Json.decodeFromString(ListSerializer(Recommendation.serializer()), it) }
+        ?.let { Json.decodeFromString(RecommendationD.serializer(), it) }
+
+    @Serializable
+    data class RecommendationD(val films: List<String>)
 }

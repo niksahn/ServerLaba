@@ -101,7 +101,7 @@ namespace AuthService.Controllers
             {
                return Forbid("Wrong role");
             }
-            return Ok();
+            return Ok(new { userName });
         }
 
         private Token GenerateTokens(string userName, string role)
