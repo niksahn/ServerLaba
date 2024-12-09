@@ -1,7 +1,6 @@
-import requests
-from fastapi import APIRouter, Header, Depends
+from fastapi import APIRouter, Depends
 
-from auth import authorization, userAccess, moderatorAccess, authorize_user, get_token
+from auth import userAccess, moderatorAccess, authorize_user, get_token
 from pydantic import BaseModel
 from reqHead import forward_request
 

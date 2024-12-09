@@ -89,3 +89,16 @@ async def get_user_by_id(
         method="GET",
         url=f"{service}/user/{id}"
     )
+
+
+# Получение информации о пользователе по ID
+@router.delete("/user/{id}", tags=["users"])
+async def del_user_by_id(
+        id: str,
+        _: None = Depends(lambda token=Depends(get_token): authorize_user(userAccess, token))
+):
+    return await forward_request(
+        method="DELETE",
+        url=f"{service}/user/{id}"
+    )
+

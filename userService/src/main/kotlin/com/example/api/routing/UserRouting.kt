@@ -20,7 +20,7 @@ fun Application.configureUserRouting() {
                 call.receive<UserRequest>()
                     .let { controller.addUser(it) }
                     ?.let { call.respond(HttpStatusCode.OK, it) }
-                    ?: call.respond(HttpStatusCode.BadRequest)
+                    ?: call.respond(HttpStatusCode.BadRequest, "User is already registered")
             } catch (e: Exception) {
                 call.respond(HttpStatusCode.BadRequest)
             }
@@ -46,6 +46,15 @@ fun Application.configureUserRouting() {
             call.pathParameters["id"]
                 ?.let { controller.getUser(it) }
                 ?.let { call.respond(HttpStatusCode.OK, it) }
+                ?: call.respond(HttpStatusCode.BadRequest)
+        }
+
+        delete("user/{id}") {
+            call.pathParameters["id"]
+                ?.let { controller.deleteUser(it) }
+                ?.let {
+                    if (it) call.respond(HttpStatusCode.OK) else call.respond(HttpStatusCode.NotFound)
+                }
                 ?: call.respond(HttpStatusCode.BadRequest)
         }
 

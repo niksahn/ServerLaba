@@ -23,8 +23,15 @@ class UserRepositoryMongo(database: MongoDatabase) : UserDataRepository {
     override suspend fun getUser(id: String): User? =
         users.find(eq("_id", ObjectId(id))).limit(1).toList().firstOrNull()?.toDomain()
 
-    override suspend fun addUser(user: User): String? =
-        users.insertOne(user.toMongo()).insertedId?.asObjectId()?.value?.toHexString()
+    override suspend fun addUser(user: User): String? {
+        val usersAlr = users.find(eq("name", user.name)).limit(1).toList()
+        return if (usersAlr.isEmpty()) {
+            users.insertOne(user.toMongo()).insertedId?.asObjectId()?.value?.toHexString()
+        } else {
+            null
+        }
+    }
+
 
     override suspend fun updateUser(user: User): Boolean {
         var updateParams = Updates.combine(

@@ -17,6 +17,31 @@ def user_authorization(password=test_password, login=test_user):
     return auth_response.json().get("accessToken")
 
 
+def test_user_authorization_failure():
+    try:
+        user_authorization("wrong_password", "wrong_user")
+    except AssertionError:
+        print("Authorization failed as expected with incorrect credentials")
+
+
+def test_registr_duplicate():
+    login = "Test_" + str(Random().randint(0, 1000) + Random().random())
+    registr_id = forward_request(
+        method="POST",
+        url=f"{base_url}/user",
+        json_data=dict(name=login, password="11"),
+        auth=False
+    )
+    duplicate_user_response = forward_request(
+        method="POST",
+        url=f"{base_url}/user",
+        json_data=dict(name=login, password="11"),
+        auth=False,
+        check=False
+    )
+    assert duplicate_user_response.status_code != 200, "Duplicate user registration should fail"
+
+
 def forward_request(method: str, url: str, auth: bool, json_data: dict = None, check=True):
     # Добавляем авторизацию в заголовок
     headers = {}
@@ -31,22 +56,77 @@ def forward_request(method: str, url: str, auth: bool, json_data: dict = None, c
     return response
 
 
-def registr():
-    return forward_request(
+def test_get_non_existing_film():
+    non_existing_film_id = "non-existing-film-id"
+    response = forward_request(
+        method="GET",
+        url=f"{base_url}/film/{non_existing_film_id}",
+        auth=True,
+        check=False
+    )
+    assert response.status_code == 400, "Request for non-existing film should return 404 status"
+
+
+def test_delete_non_existing_film():
+    film_id = addFilm()
+    # Сначала удаляем фильм
+    forward_request(
+        method="DELETE",
+        url=f"{base_url}/film/{film_id}",
+        auth=True
+    )
+    # Пытаемся удалить его снова
+    second_deletion_response = forward_request(
+        method="DELETE",
+        url=f"{base_url}/film/{film_id}",
+        auth=True,
+        check=False
+    )
+    assert second_deletion_response.status_code == 400, "Deleting non-existing film should return 404 status"
+
+
+def test_add_film_with_missing_fields():
+    response = forward_request(
+        method="POST",
+        url=f"{base_url}/film/add",
+        auth=True,
+        json_data=dict(
+            genre="Комедия"
+        ),  # Missing other required fields
+        check=False
+    )
+    assert response.status_code == 422, "Adding film with missing fields should return 400 status"
+
+
+def registr(delete: bool = True):
+    login = "Test_" + str(Random().randint(0, 1000) + Random().random())
+    req = forward_request(
         method="POST",
         url=f"{base_url}/user",
-        json_data=dict(name="11", password="11"),
+        json_data=dict(name=login, password="11"),
         auth=False
     ).content.decode('utf-8')
+    if delete:
+        forward_request(
+            method="DELETE",
+            url=f"{base_url}/user/{req}",
+            auth=True
+        )
+    return req
 
 
 def test_regist():
+    id = registr(False)
     forward_request(
         method="GET",
-        url=f"{base_url}/user/{registr()}",
+        url=f"{base_url}/user/{id}",
         auth=True
     )
-
+    forward_request(
+        method="DELETE",
+        url=f"{base_url}/user/{id}",
+        auth=True
+    )
 
 def addFilm():
     rand = Random().random()
@@ -89,7 +169,7 @@ def test_get_recommendations():
             users=[user_id], selectedFilmsCount="20"
         )
     )
-    sleep(200)
+    sleep(3)
     forward_request(
         method="GET",
         url=f"{base_url}/recommendations/{user_id}",
@@ -113,7 +193,7 @@ def test_full_scenario():
             users=[user_id], selectedFilmsCount="20"
         )
     )
-    sleep(200)
+    sleep(2)
     forward_request(
         method="GET",
         url=f"{base_url}/recommendations/{user_id}",
@@ -132,14 +212,6 @@ def test_full_scenario():
         method="GET",
         url=f"{base_url}/film/{film_id}",
         auth=True,
-        check= False
+        check=False
     )
     assert get_deleted_film_response.status_code == 400, "Фильм должен быть недоступен после удаления"
-
-# 8. Логаут (если требуется, добавьте API для логаута)
-# logout_response = forward_request(
-#     method="POST",
-#     url=f"{base_url}/auth/logout",
-#     auth=True
-# )
-# print(logout_response.content.decode('utf-8'))

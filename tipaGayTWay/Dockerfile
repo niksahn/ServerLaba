@@ -4,7 +4,6 @@ FROM python:3.12-slim
 # Установка рабочей директории внутри контейнера
 WORKDIR /app
 
-# Установка зависимостей системы (например, для Pythona cryptography может понадобиться libssl-dev)
 RUN apt-get update \
     && apt-get install -y --no-install-recommends gcc libssl-dev \
     && apt-get clean \
@@ -23,4 +22,5 @@ COPY . .
 EXPOSE 4040
 
 # Команда запуска FastAPI с помощью Uvicorn
-CMD ["python","main.py"]
+CMD ["bash","sonar.bash"]
+CMD ["python","app/main.py"]

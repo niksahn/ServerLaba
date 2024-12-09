@@ -19,7 +19,13 @@ fun Application.configureRouting() {
 
         get("/film/{id}") {
             call.pathParameters["id"]
-                ?.let { controller.getById(it) }
+                ?.let {
+                    try {
+                        controller.getById(it)
+                    } catch (e: Exception) {
+                        null
+                    }
+                }
                 ?.let { call.respond(HttpStatusCode.OK, it) }
                 ?: call.respond(HttpStatusCode.BadRequest)
         }

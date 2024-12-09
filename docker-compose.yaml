@@ -117,6 +117,14 @@ services:
     environment:
       REDIS_HOST: "redis"
       REDIS_PORT: 6379
+
+  sonarqube:
+       container_name: sonarqube
+       image: sonarqube:lts
+       ports:
+         - "9000:9000"
+       environment:
+         - SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true
 volumes:
   mongo-data:
 
