@@ -1,4 +1,5 @@
 val mongo = "5.1.4"
+val ktor_version = "3.0.0"
 
 val kotlin_version: String by project
 val logback_version: String by project
@@ -48,4 +49,8 @@ dependencies {
     testImplementation("io.ktor:ktor-server-test-host-jvm")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
     implementation("io.ktor:ktor-server-swagger")
+    
+    // Prometheus metrics
+    implementation("io.ktor:ktor-server-metrics-micrometer:$ktor_version")
+    implementation("io.micrometer:micrometer-registry-prometheus:1.11.5")
 }

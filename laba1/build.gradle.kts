@@ -2,6 +2,7 @@ val kotlin_version: String by project
 val logback_version: String by project
 val koin_version = "3.5.6"
 val mongo = "5.1.4"
+val ktor_version = "3.0.0"
 
 plugins {
     kotlin("jvm") version "2.0.20"
@@ -48,4 +49,8 @@ dependencies {
     testImplementation("io.ktor:ktor-server-tests:2.0.0")
     testImplementation("org.jetbrains.kotlin:kotlin-test:1.6.10")
     testImplementation("io.mockk:mockk:1.12.0")
+    
+    // Prometheus metrics
+    implementation("io.ktor:ktor-server-metrics-micrometer:$ktor_version")
+    implementation("io.micrometer:micrometer-registry-prometheus:1.11.5")
 }

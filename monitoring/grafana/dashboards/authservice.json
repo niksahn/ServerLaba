@@ -10,7 +10,7 @@
       "title": "Uptime (process)",
       "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 },
       "targets": [
-        { "expr": "time() - process_start_time_seconds", "refId": "A" }
+        { "expr": "time() - process_start_time_seconds{job=\"authservice\"}", "refId": "A" }
       ],
       "options": { "reduceOptions": { "calcs": ["last"] }, "orientation": "horizontal" }
     },
@@ -19,7 +19,7 @@
       "title": "HTTP Requests Rate",
       "gridPos": { "x": 6, "y": 0, "w": 18, "h": 8 },
       "targets": [
-        { "expr": "sum by (method, status_code) (rate(http_requests_received_total[5m]))", "refId": "A" }
+        { "expr": "sum by (method, code) (rate(http_requests_total{job=\"authservice\"}[5m]))", "refId": "A" }
       ]
     },
     {
@@ -27,7 +27,7 @@
       "title": "HTTP Latency p95",
       "gridPos": { "x": 0, "y": 8, "w": 12, "h": 8 },
       "targets": [
-        { "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le))", "refId": "A" }
+        { "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{job=\"authservice\"}[5m])) by (le))", "refId": "A" }
       ]
     },
     {
@@ -35,7 +35,23 @@
       "title": "5xx Errors Rate",
       "gridPos": { "x": 12, "y": 8, "w": 12, "h": 8 },
       "targets": [
-        { "expr": "sum(rate(http_requests_received_total{status_code=~\"5..\"}[5m]))", "refId": "A" }
+        { "expr": "sum(rate(http_requests_total{job=\"authservice\",code=~\"5..\"}[5m]))", "refId": "A" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Active Connections",
+      "gridPos": { "x": 0, "y": 16, "w": 12, "h": 8 },
+      "targets": [
+        { "expr": "http_requests_in_flight{job=\"authservice\"}", "refId": "A" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Memory Usage",
+      "gridPos": { "x": 12, "y": 16, "w": 12, "h": 8 },
+      "targets": [
+        { "expr": "process_working_set_bytes{job=\"authservice\"}", "refId": "A" }
       ]
     }
   ]
