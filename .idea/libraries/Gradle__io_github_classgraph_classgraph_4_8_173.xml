@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="Gradle: io.github.classgraph:classgraph:4.8.173" type="java-imported" external-system-id="GRADLE">
+    <properties groupId="io.github.classgraph" artifactId="classgraph" version="4.8.173" />
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/io.github.classgraph/classgraph/4.8.173/236e1b4360bf078142902c6c3ca80a03bfa95d5d/classgraph-4.8.173.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

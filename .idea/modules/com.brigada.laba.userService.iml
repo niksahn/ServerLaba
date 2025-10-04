@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module external.linked.project.id="com.brigada.laba.userService" external.linked.project.path="$MODULE_DIR$/../../userService" external.root.project.path="$MODULE_DIR$/../../userService" external.system.id="GRADLE" external.system.module.group="com.example" external.system.module.version="0.0.1" type="JAVA_MODULE" version="4">
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_19" inherit-compiler-output="true">
+    <exclude-output />
+    <content url="file://$MODULE_DIR$/../../userService">
+      <excludeFolder url="file://$MODULE_DIR$/../../userService/.gradle" />
+      <excludeFolder url="file://$MODULE_DIR$/../../userService/build" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+  </component>
+</module>

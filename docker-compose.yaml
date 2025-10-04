@@ -15,20 +15,20 @@ services:
     
 
   kafka:
-    image: confluentinc/cp-kafka:latest
+    image: confluentinc/cp-kafka:7.3.3
     container_name: servers-kafka-1
     ports:
       - "9092:9092"
     environment:
-     KAFKA_BROKER_ID: 1
-     KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-     KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://servers-kafka-1:9092 
-     KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://servers-kafka-1:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     depends_on:
       - zookeeper
     networks:
       - app-network
-
 
   redis:
     image: redis:alpine
@@ -125,8 +125,50 @@ services:
          - "9000:9000"
        environment:
          - SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true
+
+  # Prometheus
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --web.enable-lifecycle
+    ports:
+      - "9090:9090"
+    networks:
+      - app-network
+    depends_on:
+      - authservice
+
+  # Grafana
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
+      - GF_USERS_DEFAULT_THEME=light
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+      - ./monitoring/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
+  
+    ports:
+      - "3000:3000"
+    networks:
+      - app-network
+    depends_on:
+      - prometheus
+
 volumes:
   mongo-data:
+  prometheus-data:
+  grafana-data:
 
 networks:
   app-network:

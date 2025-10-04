@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module external.linked.project.id="com.brigada.laba1:main" external.linked.project.path="$MODULE_DIR$/../../laba1" external.root.project.path="$MODULE_DIR$/../../laba1" external.system.id="GRADLE" external.system.module.group="com.brigada.laba1" external.system.module.type="sourceSet" external.system.module.version="0.0.1" type="JAVA_MODULE" version="4">
+  <component name="FacetManager">
+    <facet external-system-id="GRADLE" type="kotlin-language" name="Kotlin">
+      <configuration version="5" platform="JVM 21" allPlatforms="JVM [21]" useProjectSettings="false" pureKotlinSourceFolders="C:\projects\servers\laba1\src\test\kotlin;C:\projects\servers\laba1\src\main\kotlin">
+        <compilerSettings />
+        <compilerArguments>
+          <flagArguments>
+            <flagArg name="allowNoSourceFiles" arg="true" />
+            <flagArg name="noReflect" arg="true" />
+            <flagArg name="noStdlib" arg="true" />
+          </flagArguments>
+          <stringArguments>
+            <stringArg name="destination" arg="$MODULE_DIR$/../../laba1/build/classes/kotlin/main" />
+            <stringArg name="jvmTarget" arg="21" />
+            <stringArg name="moduleName" arg="com.brigada.laba1" />
+            <stringArg name="apiVersion" arg="2.0" />
+            <stringArg name="languageVersion" arg="2.0" />
+          </stringArguments>
+          <arrayArguments>
+            <arrayArg name="pluginClasspaths">
+              <args>
+                <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-scripting-jvm/2.0.20/46b8d2d2028448f6596cc3ce0ad7b10b259ec236/kotlin-scripting-jvm-2.0.20.jar</arg>
+                <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-scripting-common/2.0.20/af6097b8ac359457ec1cf9b34bd9b5313b52eb6/kotlin-scripting-common-2.0.20.jar</arg>
+                <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/2.0.20/7388d355f7cceb002cd387ccb7ab3850e4e0a07f/kotlin-stdlib-2.0.20.jar</arg>
+                <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains/annotations/13.0/919f0dfe192fb4e063e7dacadee7f8bb9a2672a9/annotations-13.0.jar</arg>
+                <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-script-runtime/2.0.20/4aea042b39014e0a924c2e1d4a21b6fff7e4d35/kotlin-script-runtime-2.0.20.jar</arg>
+                <arg>$KOTLIN_BUNDLED$/lib/kotlinx-serialization-compiler-plugin.jar</arg>
+              </args>
+            </arrayArg>
+            <arrayArg name="pluginOptions" />
+          </arrayArguments>
+        </compilerArguments>
+      </configuration>
+    </facet>
+  </component>
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_21">
+    <output url="file://$MODULE_DIR$/../../laba1/build/classes/kotlin/main" />
+    <exclude-output />
+    <content url="file://$MODULE_DIR$/../../laba1/src/main">
+      <sourceFolder url="file://$MODULE_DIR$/../../laba1/src/main/kotlin" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/../../laba1/src/main/resources" type="java-resource" />
+    </content>
+    <orderEntry type="jdk" jdkName="19" jdkType="JavaSDK" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="Gradle: io.insert-koin:koin-ktor:3.5.6" level="project" />
+    <orderEntry type="library" name="Gradle: io.insert-koin:koin-logger-slf4j:3.5.6" level="project" />
+    <orderEntry type="library" name="Gradle: io.ktor:ktor-client-content-negotiation-jvm:3.0.0-rc-1" level="project" />
+    <orderEntry type="library" name="Gradle: io.ktor:ktor-client-core-jvm:3.0.0-rc-1" level="project" />
+    <orderEntry type="library" name="Gradle: io.ktor:ktor-server-netty-jvm:3.0.0-rc-1" level="project" />
+    <orderEntry type="library" name="Gradle: io.ktor:ktor-server-content-negotiation-jvm:3.0.0-rc-1" level="project" />
+    <orderEntry type="library" name="Gradle: io.ktor:ktor-server-core-jvm:3.0.0-rc-1" level="project" />
+    <orderEntry type="library" name="Gradle: io.ktor:ktor-serialization-kotlinx-json-jvm:3.0.0-rc-1" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib:2.0.20" level="project" />
+    <orderEntry type="library" name="Gradle: org.mongodb:mongodb-driver-kotlin-coroutine:5.1.4" level="project" />
+    <orderEntry type="library" name="Gradle: org.mongodb:bson-kotlin:5.1.4" level="project" />
+    <orderEntry type="library" name="Gradle: ch.qos.logback:logback-classic:1.4.14" level="project" />
+    <orderEntry type="library" name="Gradle: redis.clients:jedis:4.2.3" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.kafka:kafka-streams:3.0.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.slf4j:slf4j-api:2.0.16" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.0.20" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.0.20" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.8.1" level="project" />
+    <orderEntry type="library" name="Gradle: io.ktor:ktor-client-java-jvm:3.0.0-rc-1" level="project" />
+    <orderEntry type="library" name="Gradle: io.netty:netty-codec-http2:4.1.113.Final" level="project" />
+    <orderEntry type="library" name="Gradle: org.eclipse.jetty.alpn:alpn-api:1.1.3.v20160715" level="project" />
+    <orderEntry type="library" name="Gradle: io.netty:netty-transport-native-kqueue:4.1.113.Final" level="project" />
+    <orderEntry type="library" name="Gradle: io.netty:netty-transport-native-epoll:4.1.113.Final" level="project" />
+    <orderEntry type="library" name="Gradle: io.ktor:ktor-server-config-yaml-jvm:3.0.0-rc-1" level="project" />
+    <orderEntry type="library" name="Gradle: io.ktor:ktor-server-status-pages-jvm:3.0.0-rc-1" level="project" />
+    <orderEntry type="library" name="Gradle: io.ktor:ktor-server-swagger-jvm:3.0.0-rc-1" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-reflect:2.0.20" level="project" />
+    <orderEntry type="library" name="Gradle: com.typesafe:config:1.4.3" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains:annotations:23.0.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.mongodb:mongodb-driver-reactivestreams:5.1.4" level="project" />
+    <orderEntry type="library" name="Gradle: org.mongodb:bson:5.1.4" level="project" />
+    <orderEntry type="library" name="Gradle: ch.qos.logback:logback-core:1.4.14" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.commons:commons-pool2:2.11.1" level="project" />
+    <orderEntry type="library" name="Gradle: org.json:json:20211205" level="project" />
+    <orderEntry type="library" name="Gradle: com.google.code.gson:gson:2.8.9" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.kafka:kafka-clients:3.0.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.rocksdb:rocksdbjni:6.19.3" level="project" />
+    <orderEntry type="library" name="Gradle: io.insert-koin:koin-core-jvm:3.5.6" level="project" />
+    <orderEntry type="library" name="Gradle: io.ktor:ktor-serialization-jvm:3.0.0-rc-1" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.8.1" level="project" />
+    <orderEntry type="library" name="Gradle: io.ktor:ktor-events-jvm:3.0.0-rc-1" level="project" />
+    <orderEntry type="library" name="Gradle: io.ktor:ktor-websocket-serialization-jvm:3.0.0-rc-1" level="project" />
+    <orderEntry type="library" name="Gradle: io.ktor:ktor-sse-jvm:3.0.0-rc-1" level="project" />
+    <orderEntry type="library" name="Gradle: io.ktor:ktor-http-jvm:3.0.0-rc-1" level="project" />
+    <orderEntry type="library" name="Gradle: io.netty:netty-codec-http:4.1.113.Final" level="project" />
+    <orderEntry type="library" name="Gradle: io.netty:netty-handler:4.1.113.Final" level="project" />
+    <orderEntry type="library" name="Gradle: io.netty:netty-codec:4.1.113.Final" level="project" />
+    <orderEntry type="library" name="Gradle: io.netty:netty-transport:4.1.113.Final" level="project" />
+    <orderEntry type="library" name="Gradle: io.netty:netty-buffer:4.1.113.Final" level="project" />
+    <orderEntry type="library" name="Gradle: io.netty:netty-common:4.1.113.Final" level="project" />
+    <orderEntry type="library" name="Gradle: io.netty:netty-transport-classes-kqueue:4.1.113.Final" level="project" />
+    <orderEntry type="library" name="Gradle: io.netty:netty-transport-native-unix-common:4.1.113.Final" level="project" />
+    <orderEntry type="library" name="Gradle: io.netty:netty-transport-classes-epoll:4.1.113.Final" level="project" />
+    <orderEntry type="library" name="Gradle: io.ktor:ktor-http-cio-jvm:3.0.0-rc-1" level="project" />
+    <orderEntry type="library" name="Gradle: io.ktor:ktor-websockets-jvm:3.0.0-rc-1" level="project" />
+    <orderEntry type="library" name="Gradle: io.ktor:ktor-utils-jvm:3.0.0-rc-1" level="project" />
+    <orderEntry type="library" name="Gradle: io.ktor:ktor-serialization-kotlinx-jvm:3.0.0-rc-1" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.7.2" level="project" />
+    <orderEntry type="library" name="Gradle: org.mongodb:mongodb-driver-core:5.1.4" level="project" />
+    <orderEntry type="library" name="Gradle: org.reactivestreams:reactive-streams:1.0.4" level="project" />
+    <orderEntry type="library" name="Gradle: io.netty:netty-resolver:4.1.113.Final" level="project" />
+    <orderEntry type="library" name="Gradle: net.mamoe.yamlkt:yamlkt-jvm:0.13.0" level="project" />
+    <orderEntry type="library" name="Gradle: co.touchlab:stately-concurrent-collections-jvm:2.0.6" level="project" />
+    <orderEntry type="library" name="Gradle: co.touchlab:stately-concurrency-jvm:2.0.6" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:1.7.2" level="project" />
+    <orderEntry type="library" name="Gradle: io.ktor:ktor-network-jvm:3.0.0-rc-1" level="project" />
+    <orderEntry type="library" name="Gradle: io.ktor:ktor-io-jvm:3.0.0-rc-1" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains.kotlinx:kotlinx-io-core-jvm:0.5.3" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains.kotlinx:kotlinx-io-bytestring-jvm:0.5.3" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Gradle: org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:1.8.1" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Gradle: org.fusesource.jansi:jansi:2.4.1" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Gradle: org.jetbrains.kotlinx:kotlinx-coroutines-reactive:1.8.1" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Gradle: com.fasterxml.jackson.core:jackson-databind:2.12.3" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Gradle: com.fasterxml.jackson.core:jackson-annotations:2.12.3" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Gradle: io.projectreactor:reactor-core:3.5.0" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Gradle: com.github.luben:zstd-jni:1.5.0-2" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Gradle: org.lz4:lz4-java:1.7.1" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Gradle: org.xerial.snappy:snappy-java:1.1.8.1" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Gradle: com.fasterxml.jackson.core:jackson-core:2.12.3" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Gradle: io.ktor:ktor-server-html-builder-jvm:3.0.0-rc-1" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Gradle: org.mongodb:bson-record-codec:5.1.4" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Gradle: org.jetbrains.kotlinx:kotlinx-html-jvm:0.11.0" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Gradle: co.touchlab:stately-strict-jvm:2.0.6" level="project" />
+  </component>
+</module>

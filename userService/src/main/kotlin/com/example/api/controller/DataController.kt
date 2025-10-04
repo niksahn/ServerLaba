@@ -43,5 +43,8 @@ class UserController(
 
     suspend fun getUser(id: String) = userRepository.getUser(id)
 
+    suspend fun deleteUser(id: String) = userRepository.deleteUser(id)
+
+
     suspend fun identifyUser(request: IdentifyUserRequest) = userRepository.identifyUser(request.password,request.name)
 }

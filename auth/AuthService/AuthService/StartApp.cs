@@ -5,6 +5,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MongoDB.Driver;
 using Microsoft.OpenApi.Models;
+using Prometheus;
+
 
 namespace AuthService
 {
@@ -25,6 +27,8 @@ namespace AuthService
             services.AddSingleton(sp => new ApiService());
 
             services.AddControllers();
+            // Health checks (опционально, полезно для мониторинга)
+            services.AddHealthChecks();
 
             // Добавление Swagger
             services.AddSwaggerGen(c =>
@@ -53,12 +57,20 @@ namespace AuthService
             }
 
             app.UseRouting();
+            app.UseHttpMetrics();
+
 
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+
+                // Endpoint метрик для Prometheus
+                endpoints.MapMetrics("/metrics");
+
+                // Health endpoint (опционально)
+                endpoints.MapHealthChecks("/health");
             });
         }
     }
