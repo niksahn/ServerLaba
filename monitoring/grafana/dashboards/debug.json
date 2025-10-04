@@ -1,0 +1,37 @@
+{
+  "title": "Debug - All Metrics",
+  "uid": "debug-metrics",
+  "timezone": "browser",
+  "schemaVersion": 36,
+  "version": 1,
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Prometheus Targets",
+      "gridPos": { "x": 0, "y": 0, "w": 24, "h": 4 },
+      "targets": [
+        { "expr": "up", "refId": "A" }
+      ],
+      "options": { "reduceOptions": { "calcs": ["last"] }, "orientation": "horizontal" }
+    },
+    {
+      "type": "table",
+      "title": "Available Metrics",
+      "gridPos": { "x": 0, "y": 4, "w": 24, "h": 8 },
+      "targets": [
+        { "expr": "up", "refId": "A", "format": "table" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Service Status",
+      "gridPos": { "x": 0, "y": 12, "w": 24, "h": 8 },
+      "targets": [
+        { "expr": "up{job=\"authservice\"}", "refId": "A" },
+        { "expr": "up{job=\"user-service\"}", "refId": "B" },
+        { "expr": "up{job=\"app-service\"}", "refId": "C" },
+        { "expr": "up{job=\"api-gateway\"}", "refId": "D" }
+      ]
+    }
+  ]
+}

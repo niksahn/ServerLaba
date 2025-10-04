@@ -7,10 +7,10 @@
   "panels": [
     {
       "type": "stat",
-      "title": "Uptime (process)",
+      "title": "Service Status",
       "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 },
       "targets": [
-        { "expr": "time() - process_start_time_seconds{job=\"app-service\"}", "refId": "A" }
+        { "expr": "up{job=\"app-service\"}", "refId": "A" }
       ],
       "options": { "reduceOptions": { "calcs": ["last"] }, "orientation": "horizontal" }
     },
@@ -19,7 +19,8 @@
       "title": "HTTP Requests Rate",
       "gridPos": { "x": 6, "y": 0, "w": 18, "h": 8 },
       "targets": [
-        { "expr": "sum by (method, status) (rate(http_server_requests_seconds_count{job=\"app-service\"}[5m]))", "refId": "A" }
+        { "expr": "sum by (method, status) (rate(http_server_requests_seconds_count{job=\"app-service\"}[5m]))", "refId": "A" },
+        { "expr": "sum by (method, status) (rate(http_requests_total{job=\"app-service\"}[5m]))", "refId": "B" }
       ]
     },
     {
@@ -27,7 +28,8 @@
       "title": "HTTP Latency p95",
       "gridPos": { "x": 0, "y": 8, "w": 12, "h": 8 },
       "targets": [
-        { "expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket{job=\"app-service\"}[5m])) by (le))", "refId": "A" }
+        { "expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket{job=\"app-service\"}[5m])) by (le))", "refId": "A" },
+        { "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{job=\"app-service\"}[5m])) by (le))", "refId": "B" }
       ]
     },
     {
@@ -35,7 +37,8 @@
       "title": "5xx Errors Rate",
       "gridPos": { "x": 12, "y": 8, "w": 12, "h": 8 },
       "targets": [
-        { "expr": "sum(rate(http_server_requests_seconds_count{job=\"app-service\",status=~\"5..\"}[5m]))", "refId": "A" }
+        { "expr": "sum(rate(http_server_requests_seconds_count{job=\"app-service\",status=~\"5..\"}[5m]))", "refId": "A" },
+        { "expr": "sum(rate(http_requests_total{job=\"app-service\",status_code=~\"5..\"}[5m]))", "refId": "B" }
       ]
     },
     {
@@ -43,7 +46,8 @@
       "title": "Active Connections",
       "gridPos": { "x": 0, "y": 16, "w": 12, "h": 8 },
       "targets": [
-        { "expr": "http_server_requests_seconds_active{job=\"app-service\"}", "refId": "A" }
+        { "expr": "http_server_requests_seconds_active{job=\"app-service\"}", "refId": "A" },
+        { "expr": "http_requests_in_flight{job=\"app-service\"}", "refId": "B" }
       ]
     },
     {
@@ -51,7 +55,8 @@
       "title": "Memory Usage",
       "gridPos": { "x": 12, "y": 16, "w": 12, "h": 8 },
       "targets": [
-        { "expr": "jvm_memory_used_bytes{job=\"app-service\"}", "refId": "A" }
+        { "expr": "jvm_memory_used_bytes{job=\"app-service\"}", "refId": "A" },
+        { "expr": "process_resident_memory_bytes{job=\"app-service\"}", "refId": "B" }
       ]
     }
   ]
