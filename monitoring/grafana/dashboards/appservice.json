@@ -1,0 +1,58 @@
+{
+  "title": "App Service Overview",
+  "uid": "appservice-overview",
+  "timezone": "browser",
+  "schemaVersion": 36,
+  "version": 1,
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Uptime (process)",
+      "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 },
+      "targets": [
+        { "expr": "time() - process_start_time_seconds{job=\"app-service\"}", "refId": "A" }
+      ],
+      "options": { "reduceOptions": { "calcs": ["last"] }, "orientation": "horizontal" }
+    },
+    {
+      "type": "timeseries",
+      "title": "HTTP Requests Rate",
+      "gridPos": { "x": 6, "y": 0, "w": 18, "h": 8 },
+      "targets": [
+        { "expr": "sum by (method, status) (rate(http_server_requests_seconds_count{job=\"app-service\"}[5m]))", "refId": "A" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "HTTP Latency p95",
+      "gridPos": { "x": 0, "y": 8, "w": 12, "h": 8 },
+      "targets": [
+        { "expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket{job=\"app-service\"}[5m])) by (le))", "refId": "A" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "5xx Errors Rate",
+      "gridPos": { "x": 12, "y": 8, "w": 12, "h": 8 },
+      "targets": [
+        { "expr": "sum(rate(http_server_requests_seconds_count{job=\"app-service\",status=~\"5..\"}[5m]))", "refId": "A" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Active Connections",
+      "gridPos": { "x": 0, "y": 16, "w": 12, "h": 8 },
+      "targets": [
+        { "expr": "http_server_requests_seconds_active{job=\"app-service\"}", "refId": "A" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Memory Usage",
+      "gridPos": { "x": 12, "y": 16, "w": 12, "h": 8 },
+      "targets": [
+        { "expr": "jvm_memory_used_bytes{job=\"app-service\"}", "refId": "A" }
+      ]
+    }
+  ]
+}

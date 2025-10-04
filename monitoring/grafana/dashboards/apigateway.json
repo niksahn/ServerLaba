@@ -1,0 +1,58 @@
+{
+  "title": "API Gateway Overview",
+  "uid": "apigateway-overview",
+  "timezone": "browser",
+  "schemaVersion": 36,
+  "version": 1,
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Uptime (process)",
+      "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 },
+      "targets": [
+        { "expr": "time() - process_start_time_seconds{job=\"api-gateway\"}", "refId": "A" }
+      ],
+      "options": { "reduceOptions": { "calcs": ["last"] }, "orientation": "horizontal" }
+    },
+    {
+      "type": "timeseries",
+      "title": "HTTP Requests Rate",
+      "gridPos": { "x": 6, "y": 0, "w": 18, "h": 8 },
+      "targets": [
+        { "expr": "sum by (method, endpoint, status_code) (rate(http_requests_total{job=\"api-gateway\"}[5m]))", "refId": "A" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "HTTP Latency p95",
+      "gridPos": { "x": 0, "y": 8, "w": 12, "h": 8 },
+      "targets": [
+        { "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{job=\"api-gateway\"}[5m])) by (le))", "refId": "A" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "5xx Errors Rate",
+      "gridPos": { "x": 12, "y": 8, "w": 12, "h": 8 },
+      "targets": [
+        { "expr": "sum(rate(http_requests_total{job=\"api-gateway\",status_code=~\"5..\"}[5m]))", "refId": "A" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Active Connections",
+      "gridPos": { "x": 0, "y": 16, "w": 12, "h": 8 },
+      "targets": [
+        { "expr": "http_requests_in_flight{job=\"api-gateway\"}", "refId": "A" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "API Calls by Service",
+      "gridPos": { "x": 12, "y": 16, "w": 12, "h": 8 },
+      "targets": [
+        { "expr": "sum by (service) (rate(api_calls_total{job=\"api-gateway\"}[5m]))", "refId": "A" }
+      ]
+    }
+  ]
+}
