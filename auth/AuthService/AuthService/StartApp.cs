@@ -6,6 +6,8 @@ using Microsoft.Extensions.Hosting;
 using MongoDB.Driver;
 using Microsoft.OpenApi.Models;
 using Prometheus;
+using AuthService.GraphQL.Queries;
+using AuthService.GraphQL.Mutations;
 
 
 namespace AuthService
@@ -39,6 +41,11 @@ namespace AuthService
                     Version = "v1"
                 });
             });
+
+            // GraphQL Configuration
+            services.AddGraphQLServer()
+                .AddQueryType<AuthQueries>()
+                .AddMutationType<AuthMutations>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -65,6 +72,9 @@ namespace AuthService
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+
+                // GraphQL endpoint
+                endpoints.MapGraphQL("/graphql");
 
                 // Endpoint метрик для Prometheus
                 endpoints.MapMetrics("/metrics");

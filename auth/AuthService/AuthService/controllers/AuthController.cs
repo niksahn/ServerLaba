@@ -91,7 +91,7 @@ namespace AuthService.Controllers
 
             if (principal == null) return Unauthorized("Invalid access token");
 
-            var userName = principal.FindFirst("user_id").Value;
+            var userName = principal.FindFirst("user_id")?.Value ?? string.Empty;
             var storedToken = _tokens.Find(t => t.User_id.ToString() == userName).FirstOrDefault();
 
             if (storedToken == null || storedToken.AccessToken != request.AccessToken )
@@ -174,36 +174,36 @@ namespace AuthService.Controllers
 
     public class LoginRequest
     {
-        public string UserName { get; set; }
-        public string Password { get; set; }
+        public string UserName { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
     }
 
     public class LogoutRequest
     {
-        public string token { get; set; }
+        public string token { get; set; } = string.Empty;
     }
 
     public class RefreshRequest
     {
-        public string RefreshToken { get; set; }
+        public string RefreshToken { get; set; } = string.Empty;
     }
 
     public class IdentifyRequest
     {
-        public string AccessToken { get; set; }
-        public List<string> Role { get; set; }
+        public string AccessToken { get; set; } = string.Empty;
+        public List<string> Role { get; set; } = new List<string>();
     }
 
     public class IdentifyResponse
     {
-        public string Id { get; set; }
-        public string Role { get; set; }
+        public string Id { get; set; } = string.Empty;
+        public string Role { get; set; } = string.Empty;
 
     }
 
     public class IdentifyExternalRequest
     {
-        public string Name { get; set; }
-        public string Password { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
     }
 }

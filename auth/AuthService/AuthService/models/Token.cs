@@ -8,8 +8,8 @@ namespace AuthService.Models
         [BsonId]
         public ObjectId Id { get; set; } = ObjectId.GenerateNewId();
 
-        public string User_id { get; set; }
-        public string AccessToken { get; set; }
-        public string RefreshToken { get; set; }
+        public string User_id { get; set; } = string.Empty;
+        public string AccessToken { get; set; } = string.Empty;
+        public string RefreshToken { get; set; } = string.Empty;
     }
 }
