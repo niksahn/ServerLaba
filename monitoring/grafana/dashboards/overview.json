@@ -7,7 +7,8 @@
   "panels": [
     {
       "type": "stat",
-      "title": "Total Services",
+      "title": "🔄 Total Services",
+      "description": "Total number of discovered services",
       "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 },
       "targets": [
         { "expr": "count(up)", "refId": "A" }
@@ -16,7 +17,8 @@
     },
     {
       "type": "stat",
-      "title": "Services Up",
+      "title": "✅ Services Up",
+      "description": "Number of healthy services",
       "gridPos": { "x": 6, "y": 0, "w": 6, "h": 4 },
       "targets": [
         { "expr": "sum(up)", "refId": "A" }
@@ -25,59 +27,123 @@
     },
     {
       "type": "stat",
-      "title": "Services Down",
+      "title": "❌ Services Down",
+      "description": "Number of unhealthy services",
       "gridPos": { "x": 12, "y": 0, "w": 6, "h": 4 },
       "targets": [
         { "expr": "count(up) - sum(up)", "refId": "A" }
       ],
-      "options": { "reduceOptions": { "calcs": ["last"] }, "orientation": "horizontal" }
+      "options": {
+        "reduceOptions": { "calcs": ["last"] },
+        "orientation": "horizontal",
+        "colorMode": "value",
+        "thresholds": { "steps": [{ "color": "red", "value": 0 }] }
+      }
     },
     {
       "type": "timeseries",
-      "title": "Total HTTP Requests Rate",
+      "title": "📊 HTTP Requests Rate (requests/sec)",
+      "description": "Total request rate across all services",
       "gridPos": { "x": 0, "y": 4, "w": 24, "h": 8 },
       "targets": [
-        { "expr": "sum(rate(http_requests_total[5m]))", "refId": "A" },
-        { "expr": "sum(rate(http_server_requests_seconds_count[5m]))", "refId": "B" }
-      ]
+        { "expr": "sum(rate(http_requests_total[5m]))", "refId": "A", "legendFormat": "HTTP Services" },
+        { "expr": "sum(rate(ktor_http_server_requests_seconds_count[5m]))", "refId": "B", "legendFormat": "Ktor Services" }
+      ],
+      "fieldConfig": {
+        "unit": "reqps",
+        "decimals": 2
+      }
     },
     {
       "type": "timeseries",
-      "title": "Service Status",
+      "title": "⏱️ Average Response Time (seconds)",
+      "description": "Request duration by service type",
+      "gridPos": { "x": 0, "y": 28, "w": 12, "h": 8 },
+      "targets": [
+        { "expr": "rate(http_request_duration_seconds_sum[5m]) / rate(http_request_duration_seconds_count[5m])", "refId": "A", "legendFormat": "{{job}}"},
+        { "expr": "rate(ktor_http_server_requests_seconds_sum[5m]) / rate(ktor_http_server_requests_seconds_count[5m])", "refId": "B", "legendFormat": "{{job}}" }
+      ],
+      "fieldConfig": {
+        "unit": "s",
+        "min": 0,
+        "decimals": 3
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "🟢 Service Status (0=Down, 1=Up)",
+      "description": "Health status of individual services",
       "gridPos": { "x": 0, "y": 12, "w": 12, "h": 8 },
       "targets": [
-        { "expr": "up", "refId": "A" }
-      ]
+        { "expr": "up", "refId": "A", "legendFormat": "{{job}}" }
+      ],
+      "fieldConfig": {
+        "min": 0,
+        "max": 1,
+        "custom": { "drawStyle": "line", "lineWidth": 2 }
+      }
     },
     {
       "type": "timeseries",
-      "title": "Total Errors Rate",
+      "title": "🚨 5xx Errors Rate (errors/sec)",
+      "description": "Server errors across all services",
       "gridPos": { "x": 12, "y": 12, "w": 12, "h": 8 },
       "targets": [
-        { "expr": "sum(rate(http_requests_total{status_code=~\"5..\"}[5m]))", "refId": "A" },
-        { "expr": "sum(rate(http_server_requests_seconds_count{status=~\"5..\"}[5m]))", "refId": "B" }
-      ]
+        { "expr": "sum(rate(http_requests_total{status_code=~\"5..\"}[5m]))", "refId": "A", "legendFormat": "HTTP 5xx" },
+        { "expr": "sum(rate(ktor_http_server_requests_seconds_count{status=~\"5..\"}[5m]))", "RefId": "B", "legendFormat": "Ktor 5xx" }
+      ],
+      "fieldConfig": {
+        "unit": "reqps",
+        "decimals": 2,
+        "colorMode": "palette-classic"
+      }
     },
     {
       "type": "timeseries",
-      "title": "Memory Usage by Service",
+      "title": "💾 Memory Usage by Service",
+      "description": "Memory consumption across services",
       "gridPos": { "x": 0, "y": 20, "w": 12, "h": 8 },
       "targets": [
-        { "expr": "process_working_set_bytes{job=\"authservice\"}", "refId": "A" },
-        { "expr": "jvm_memory_used_bytes{job=\"user-service\"}", "refId": "B" },
-        { "expr": "jvm_memory_used_bytes{job=\"app-service\"}", "refId": "C" }
-      ]
+        { "expr": "process_resident_memory_bytes{job=\"authservice\"}", "refId": "A", "legendFormat": "Auth Service" },
+        { "expr": "jvm_memory_used_bytes{job=\"user-service\",area=\"heap\"}", "refId": "B", "legendFormat": "User Service (Heap)" },
+        { "expr": "jvm_memory_used_bytes{job=\"app-service\",area=\"heap\"}", "refId": "C", "legendFormat": "App Service (Heap)" },
+        { "expr": "process_resident_memory_bytes{job=\"api-gateway\"}", "refId": "D", "legendFormat": "API Gateway" }
+      ],
+      "fieldConfig": {
+        "unit": "bytes",
+        "min": 0
+      }
     },
     {
       "type": "timeseries",
-      "title": "Active Connections",
+      "title": "🔗 Active Connections",
+      "description": "Current in-flight requests per service",
       "gridPos": { "x": 12, "y": 20, "w": 12, "h": 8 },
       "targets": [
-        { "expr": "http_requests_in_flight{job=\"authservice\"}", "refId": "A" },
-        { "expr": "http_server_requests_seconds_active{job=\"user-service\"}", "refId": "B" },
-        { "expr": "http_server_requests_seconds_active{job=\"app-service\"}", "refId": "C" },
-        { "expr": "http_requests_in_flight{job=\"api-gateway\"}", "refId": "D" }
-      ]
+        { "expr": "http_requests_in_flight{job=\"authservice\"}", "refId": "A", "legendFormat": "Auth Service" },
+        { "expr": "ktor_http_server_requests_active{job=\"user-service\"}", "refId": "B", "legendFormat": "User Service" },
+        { "expr": "ktor_http_server_requests_active{job=\"app-service\"}", "refId": "C", "legendFormat": "App Service" },
+        { "expr": "http_requests_in_flight{job=\"api-gateway\"}", "refId": "D", "legendFormat": "API Gateway" }
+      ],
+      "fieldConfig": {
+        "unit": "short",
+        "min": 0,
+        "decimals": 0
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "📈 4xx Client Errors Rate (errors/sec)",
+      "description": "Client errors across all services",
+      "gridPos": { "x": 12, "y": 28, "w": 12, "h": 8 },
+      "targets": [
+        { "expr": "sum(rate(http_requests_total{status_code=~\"4..\"}[5m]))", "refId": "A", "legendFormat": "HTTP 4xx" },
+        { "expr": "sum(rate(ktor_http_server_requests_seconds_count{status=~\"4..\"}[5m]))", "refId": "B", "legendFormat": "Ktor 4xx" }
+      ],
+      "fieldConfig": {
+        "unit": "reqps",
+        "decimals": 2
+      }
     }
   ]
 }

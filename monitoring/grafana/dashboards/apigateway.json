@@ -8,51 +8,645 @@
     {
       "type": "stat",
       "title": "Uptime (process)",
-      "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 },
       "targets": [
-        { "expr": "time() - process_start_time_seconds{job=\"api-gateway\"}", "refId": "A" }
+        {
+          "expr": "time() - process_start_time_seconds{job=\"api-gateway\"}",
+          "refId": "A"
+        }
       ],
-      "options": { "reduceOptions": { "calcs": ["last"] }, "orientation": "horizontal" }
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "last"
+          ]
+        },
+        "orientation": "horizontal"
+      }
     },
     {
       "type": "timeseries",
-      "title": "HTTP Requests Rate",
-      "gridPos": { "x": 6, "y": 0, "w": 18, "h": 8 },
+      "title": "HTTP Requests Rate - среднее количество запросов в секунду за последние 5 минут. ",
       "targets": [
-        { "expr": "sum by (method, endpoint, status_code) (rate(http_requests_total{job=\"api-gateway\"}[5m]))", "refId": "A" }
+        {
+          "expr": "sum by (method, endpoint, status_code) (rate(http_requests_total{job=\"api-gateway\"}[5m]))",
+          "refId": "A"
+        }
       ]
     },
     {
       "type": "timeseries",
-      "title": "HTTP Latency p95",
-      "gridPos": { "x": 0, "y": 8, "w": 12, "h": 8 },
+      "title": "HTTP Requests - средняя длительность запросов",
       "targets": [
-        { "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{job=\"api-gateway\"}[5m])) by (le))", "refId": "A" }
+        {
+          "expr": "rate(http_request_duration_seconds_sum{job=\"api-gateway\"}[5m]) / rate(http_request_duration_seconds_count{job=\"api-gateway\"}[5m])",
+          "legendFormat": "{{endpoint}}",
+          "refId": "A"
+        }
       ]
     },
     {
       "type": "timeseries",
-      "title": "5xx Errors Rate",
-      "gridPos": { "x": 12, "y": 8, "w": 12, "h": 8 },
+      "title": "5xx Errors Rate - число 5xx в 5м",
       "targets": [
-        { "expr": "sum(rate(http_requests_total{job=\"api-gateway\",status_code=~\"5..\"}[5m]))", "refId": "A" }
+        {
+          "expr": "increase(http_requests_total{job=\"api-gateway\",status_code=~\"5..\"}[5m])",
+          "refId": "A",
+          "legendFormat": "{{endpoint}}"
+        }
       ]
     },
     {
       "type": "timeseries",
-      "title": "Active Connections",
-      "gridPos": { "x": 0, "y": 16, "w": 12, "h": 8 },
+      "title": "4xx Errors Rate - число 4xx в 5м",
+
       "targets": [
-        { "expr": "http_requests_in_flight{job=\"api-gateway\"}", "refId": "A" }
+        {
+          "expr": "increase(http_requests_total{job=\"api-gateway\",status_code=~\"4..\"}[5m])",
+          "refId": "A",
+          "legendFormat": "{{endpoint}}"
+        }
       ]
     },
     {
       "type": "timeseries",
-      "title": "API Calls by Service",
-      "gridPos": { "x": 12, "y": 16, "w": 12, "h": 8 },
+      "title": "Active Connections - число запросов одноременно выполняемых",
+
       "targets": [
-        { "expr": "sum by (service) (rate(api_calls_total{job=\"api-gateway\"}[5m]))", "refId": "A" }
+        {
+          "expr": "http_requests_in_flight{job=\"api-gateway\"}",
+          "refId": "A"
+        }
       ]
     }
   ]
 }
+
+
+C:\projects\servers>curl http: //localhost:4040/metrics
+# HELP python_gc_objects_collected_total Objects collected during gc
+# TYPE python_gc_objects_collected_total counter
+python_gc_objects_collected_total{generation="0"
+} 25504.0
+python_gc_objects_collected_total{
+generation="1"
+} 8498.0
+python_gc_objects_collected_total{
+generation="2"
+} 1298.0
+# HELP python_gc_objects_uncollectable_total Uncollectable objects found during GC
+# TYPE python_gc_objects_uncollectable_total counter
+python_gc_objects_uncollectable_total{generation="0"
+} 0.0
+python_gc_objects_uncollectable_total{
+generation="1"
+} 0.0
+python_gc_objects_uncollectable_total{
+generation="2"
+} 0.0
+# HELP python_gc_collections_total Number of times this generation was collected
+# TYPE python_gc_collections_total counter
+python_gc_collections_total{
+generation="0"
+} 254.0
+python_gc_collections_total{
+generation="1"
+} 23.0
+python_gc_collections_total{generation="2"} 2.0
+# HELP python_info Python platform information
+# TYPE python_info gauge
+python_info{implementation="CPython", major="3", minor="12", patchlevel="11", version="3.12.11"
+} 1.0
+# HELP process_virtual_memory_bytes Virtual memory size in bytes.
+# TYPE process_virtual_memory_bytes gauge
+process_virtual_memory_bytes 1.455104e+08
+# HELP process_resident_memory_bytes Resident memory size in bytes.
+# TYPE process_resident_memory_bytes gauge
+process_resident_memory_bytes 5.9748352e+07
+# HELP process_start_time_seconds Start time of the process since unix epoch in seconds.
+# TYPE process_start_time_seconds gauge
+process_start_time_seconds 1.75957070567e+09
+# HELP process_cpu_seconds_total Total user and system CPU time spent in seconds.
+# TYPE process_cpu_seconds_total counter
+process_cpu_seconds_total 30.759999999999998
+# HELP process_open_fds Number of open file descriptors.
+# TYPE process_open_fds gauge
+process_open_fds 13.0
+# HELP process_max_fds Maximum number of open file descriptors.
+# TYPE process_max_fds gauge
+process_max_fds 1.048576e+06
+# HELP http_requests_total Total HTTP requests
+# TYPE http_requests_total counter
+http_requests_total{endpoint="/metrics", method="GET", status_code="200"} 520.0
+http_requests_total{endpoint="/auth", method="POST", status_code="200"
+} 21.0
+http_requests_total{
+endpoint="/films", method="GET", status_code="401"
+} 6.0
+http_requests_total{
+endpoint="/films",method="GET", status_code="200"
+} 2.0
+http_requests_total{
+endpoint="/film/1132", method="GET", status_code="400"
+} 26.0
+http_requests_total{endpoint="/film/68c49b96ded1f11b0fed0a50", method="GET", status_code="200"} 2.0
+http_requests_total{endpoint="/users", method="GET", status_code="401"
+} 3.0
+http_requests_total{
+endpoint="/users", method="GET", status_code="200"
+} 14.0
+http_requests_total{
+endpoint="/user",method="POST", status_code="400"
+} 31.0
+http_requests_total{
+endpoint="/user", method="PATCH", status_code="401"
+} 2.0
+http_requests_total{endpoint="/recommendations/68e0e77ff9036667c36840dc", method="GET", status_code="200"} 122.0
+http_requests_total{endpoint="/recommendations/addRequest", method="POST", status_code="200"
+} 9.0
+http_requests_total{
+endpoint="/user", method="PATCH", status_code="200"
+} 2.0
+http_requests_total{
+endpoint="/recommendations/addRequest",method="POST", status_code="401"
+} 1.0
+http_requests_total{
+endpoint="/recommendations/68e0e77ff9036667c36840dc", method="GET", status_code="401"
+} 1.0
+# HELP http_requests_created Total HTTP requests
+# TYPE http_requests_created gauge
+http_requests_created{endpoint="/metrics", method="GET", status_code="200"} 1.7595707157284958e+09
+http_requests_created{endpoint="/auth", method="POST", status_code="200"
+} 1.7595715119174728e+09
+http_requests_created{
+endpoint="/films", method="GET", status_code="401"
+} 1.759571526011162e+09
+http_requests_created{
+endpoint="/films",method="GET", status_code="200"
+} 1.7595715372690108e+09
+http_requests_created{
+endpoint="/film/1132", method="GET", status_code="400"
+} 1.759571562978653e+09
+http_requests_created{endpoint="/film/68c49b96ded1f11b0fed0a50", method="GET", status_code="200"} 1.7595715861544192e+09
+http_requests_created{endpoint="/users", method="GET", status_code="401"
+} 1.7595716029517543e+09
+http_requests_created{
+endpoint="/users", method="GET", status_code="200"
+} 1.7595716537260208e+09
+http_requests_created{
+endpoint="/user",method="POST", status_code="400"
+} 1.7595716641712823e+09
+http_requests_created{
+endpoint="/user", method="PATCH", status_code="401"
+} 1.7595725924157894e+09
+http_requests_created{endpoint="/recommendations/68e0e77ff9036667c36840dc", method="GET", status_code="200"} 1.7595726495499058e+09
+http_requests_created{endpoint="/recommendations/addRequest", method="POST", status_code="200"
+} 1.759572678731572e+09
+http_requests_created{
+endpoint="/user", method="PATCH", status_code="200"
+} 1.7595728361746504e+09
+http_requests_created{
+endpoint="/recommendations/addRequest",method="POST", status_code="401"
+} 1.759572845083919e+09
+http_requests_created{
+endpoint="/recommendations/68e0e77ff9036667c36840dc", method="GET", status_code="401"
+} 1.7595728573911474e+09
+# HELP http_request_duration_seconds HTTP request duration in seconds
+# TYPE http_request_duration_seconds histogram
+http_request_duration_seconds_bucket{endpoint="/metrics", le="0.005", method="GET"
+} 358.0
+http_request_duration_seconds_bucket{
+endpoint="/metrics", le="0.01", method="GET"
+} 437.0
+http_request_duration_seconds_bucket{
+endpoint="/metrics",le="0.025", method="GET"
+} 517.0
+http_request_duration_seconds_bucket{
+endpoint="/metrics", le="0.05", method="GET"
+} 519.0
+http_request_duration_seconds_bucket{endpoint="/metrics", le="0.075", method="GET"} 519.0
+http_request_duration_seconds_bucket{endpoint="/metrics", le="0.1", method="GET"
+} 519.0
+http_request_duration_seconds_bucket{
+endpoint="/metrics", le="0.25", method="GET"
+} 519.0
+http_request_duration_seconds_bucket{
+endpoint="/metrics",le="0.5", method="GET"
+} 520.0
+http_request_duration_seconds_bucket{
+endpoint="/metrics", le="0.75", method="GET"
+} 520.0
+http_request_duration_seconds_bucket{endpoint="/metrics", le="1.0", method="GET"} 520.0
+http_request_duration_seconds_bucket{endpoint="/metrics", le="2.5", method="GET"
+} 520.0
+http_request_duration_seconds_bucket{
+endpoint="/metrics", le="5.0", method="GET"
+} 520.0
+http_request_duration_seconds_bucket{
+endpoint="/metrics",le="7.5", method="GET"
+} 520.0
+http_request_duration_seconds_bucket{
+endpoint="/metrics", le="10.0", method="GET"
+} 520.0
+http_request_duration_seconds_bucket{endpoint="/metrics", le="+Inf", method="GET"} 520.0
+http_request_duration_seconds_count{endpoint="/metrics", method="GET"} 520.0
+http_request_duration_seconds_sum{endpoint="/metrics", method="GET"} 2.7990808486938477
+http_request_duration_seconds_bucket{endpoint="/auth", le="0.005", method="POST"} 0.0
+http_request_duration_seconds_bucket{endpoint="/auth", le="0.01", method="POST"
+} 0.0
+http_request_duration_seconds_bucket{
+endpoint="/auth", le="0.025", method="POST"
+} 4.0
+http_request_duration_seconds_bucket{
+endpoint="/auth",le="0.05", method="POST"
+} 16.0
+http_request_duration_seconds_bucket{
+endpoint="/auth", le="0.075", method="POST"
+} 17.0
+http_request_duration_seconds_bucket{endpoint="/auth", le="0.1", method="POST"} 18.0
+http_request_duration_seconds_bucket{endpoint="/auth", le="0.25", method="POST"
+} 19.0
+http_request_duration_seconds_bucket{
+endpoint="/auth", le="0.5", method="POST"
+} 20.0
+http_request_duration_seconds_bucket{
+endpoint="/auth",le="0.75", method="POST"
+} 21.0
+http_request_duration_seconds_bucket{
+endpoint="/auth", le="1.0", method="POST"
+} 21.0
+http_request_duration_seconds_bucket{endpoint="/auth", le="2.5", method="POST"} 21.0
+http_request_duration_seconds_bucket{endpoint="/auth", le="5.0", method="POST"
+} 21.0
+http_request_duration_seconds_bucket{
+endpoint="/auth", le="7.5", method="POST"
+} 21.0
+http_request_duration_seconds_bucket{
+endpoint="/auth",le="10.0", method="POST"
+} 21.0
+http_request_duration_seconds_bucket{
+endpoint="/auth", le="+Inf", method="POST"
+} 21.0
+http_request_duration_seconds_count{
+endpoint="/auth", method="POST"
+} 21.0
+http_request_duration_seconds_sum{endpoint="/auth", method="POST"
+} 1.7033143043518066
+http_request_duration_seconds_bucket{
+endpoint="/films", le="0.005", method="GET"
+} 2.0
+http_request_duration_seconds_bucket{endpoint="/films", le="0.01", method="GET"} 5.0
+http_request_duration_seconds_bucket{endpoint="/films", le="0.025", method="GET"
+} 6.0
+http_request_duration_seconds_bucket{
+endpoint="/films", le="0.05", method="GET"
+} 7.0
+http_request_duration_seconds_bucket{
+endpoint="/films",le="0.075", method="GET"
+} 7.0
+http_request_duration_seconds_bucket{
+endpoint="/films", le="0.1", method="GET"
+} 7.0
+http_request_duration_seconds_bucket{endpoint="/films", le="0.25", method="GET"} 8.0
+http_request_duration_seconds_bucket{endpoint="/films", le="0.5", method="GET"
+} 8.0
+http_request_duration_seconds_bucket{
+endpoint="/films", le="0.75", method="GET"
+} 8.0
+http_request_duration_seconds_bucket{
+endpoint="/films",le="1.0", method="GET"
+} 8.0
+http_request_duration_seconds_bucket{
+endpoint="/films", le="2.5", method="GET"
+} 8.0
+http_request_duration_seconds_bucket{endpoint="/films", le="5.0", method="GET"} 8.0
+http_request_duration_seconds_bucket{endpoint="/films", le="7.5", method="GET"
+} 8.0
+http_request_duration_seconds_bucket{
+endpoint="/films", le="10.0", method="GET"
+} 8.0
+http_request_duration_seconds_bucket{
+endpoint="/films",le="+Inf", method="GET"
+} 8.0
+http_request_duration_seconds_count{
+endpoint="/films", method="GET"
+} 8.0
+http_request_duration_seconds_sum{
+endpoint="/films", method="GET"
+} 0.260697603225708
+http_request_duration_seconds_bucket{
+endpoint="/film/1132",le="0.005", method="GET"
+} 0.0
+http_request_duration_seconds_bucket{
+endpoint="/film/1132", le="0.01", method="GET"
+} 0.0
+http_request_duration_seconds_bucket{endpoint="/film/1132", le="0.025", method="GET"} 25.0
+http_request_duration_seconds_bucket{endpoint="/film/1132", le="0.05", method="GET"
+} 26.0
+http_request_duration_seconds_bucket{
+endpoint="/film/1132", le="0.075", method="GET"
+} 26.0
+http_request_duration_seconds_bucket{
+endpoint="/film/1132",le="0.1", method="GET"
+} 26.0
+http_request_duration_seconds_bucket{
+endpoint="/film/1132", le="0.25", method="GET"
+} 26.0
+http_request_duration_seconds_bucket{endpoint="/film/1132", le="0.5", method="GET"} 26.0
+http_request_duration_seconds_bucket{endpoint="/film/1132", le="0.75", method="GET"
+} 26.0
+http_request_duration_seconds_bucket{
+endpoint="/film/1132", le="1.0", method="GET"
+} 26.0
+http_request_duration_seconds_bucket{
+endpoint="/film/1132",le="2.5", method="GET"
+} 26.0
+http_request_duration_seconds_bucket{
+endpoint="/film/1132", le="5.0", method="GET"
+} 26.0
+http_request_duration_seconds_bucket{endpoint="/film/1132", le="7.5", method="GET"} 26.0
+http_request_duration_seconds_bucket{endpoint="/film/1132", le="10.0", method="GET"
+} 26.0
+http_request_duration_seconds_bucket{
+endpoint="/film/1132", le="+Inf", method="GET"
+} 26.0
+http_request_duration_seconds_count{
+endpoint="/film/1132",method="GET"
+} 26.0
+http_request_duration_seconds_sum{
+endpoint="/film/1132", method="GET"
+} 0.40212321281433105
+http_request_duration_seconds_bucket{
+endpoint="/film/68c49b96ded1f11b0fed0a50", le="0.005", method="GET"
+} 0.0
+http_request_duration_seconds_bucket{
+endpoint="/film/68c49b96ded1f11b0fed0a50",le="0.01", method="GET"
+} 0.0
+http_request_duration_seconds_bucket{
+endpoint="/film/68c49b96ded1f11b0fed0a50", le="0.025", method="GET"
+} 1.0
+http_request_duration_seconds_bucket{endpoint="/film/68c49b96ded1f11b0fed0a50", le="0.05", method="GET"} 2.0
+http_request_duration_seconds_bucket{endpoint="/film/68c49b96ded1f11b0fed0a50", le="0.075", method="GET"
+} 2.0
+http_request_duration_seconds_bucket{
+endpoint="/film/68c49b96ded1f11b0fed0a50", le="0.1", method="GET"
+} 2.0
+http_request_duration_seconds_bucket{
+endpoint="/film/68c49b96ded1f11b0fed0a50",le="0.25", method="GET"
+} 2.0
+http_request_duration_seconds_bucket{
+endpoint="/film/68c49b96ded1f11b0fed0a50", le="0.5", method="GET"
+} 2.0
+http_request_duration_seconds_bucket{endpoint="/film/68c49b96ded1f11b0fed0a50", le="0.75", method="GET"} 2.0
+http_request_duration_seconds_bucket{endpoint="/film/68c49b96ded1f11b0fed0a50", le="1.0", method="GET"
+} 2.0
+http_request_duration_seconds_bucket{
+endpoint="/film/68c49b96ded1f11b0fed0a50", le="2.5", method="GET"
+} 2.0
+http_request_duration_seconds_bucket{
+endpoint="/film/68c49b96ded1f11b0fed0a50",le="5.0", method="GET"
+} 2.0
+http_request_duration_seconds_bucket{
+endpoint="/film/68c49b96ded1f11b0fed0a50", le="7.5", method="GET"
+} 2.0
+http_request_duration_seconds_bucket{endpoint="/film/68c49b96ded1f11b0fed0a50", le="10.0", method="GET"} 2.0
+http_request_duration_seconds_bucket{endpoint="/film/68c49b96ded1f11b0fed0a50", le="+Inf", method="GET"
+} 2.0
+http_request_duration_seconds_count{
+endpoint="/film/68c49b96ded1f11b0fed0a50", method="GET"} 2.0
+http_request_duration_seconds_sum{
+endpoint="/film/68c49b96ded1f11b0fed0a50", method="GET"
+} 0.04250359535217285
+http_request_duration_seconds_bucket{endpoint="/users", le="0.005", method="GET"
+} 1.0
+http_request_duration_seconds_bucket{
+endpoint="/users", le="0.01", method="GET"
+} 3.0
+http_request_duration_seconds_bucket{
+endpoint="/users",le="0.025", method="GET"
+} 12.0
+http_request_duration_seconds_bucket{
+endpoint="/users", le="0.05", method="GET"
+} 17.0
+http_request_duration_seconds_bucket{endpoint="/users", le="0.075", method="GET"} 17.0
+http_request_duration_seconds_bucket{endpoint="/users", le="0.1", method="GET"
+} 17.0
+http_request_duration_seconds_bucket{
+endpoint="/users", le="0.25", method="GET"
+} 17.0
+http_request_duration_seconds_bucket{
+endpoint="/users",le="0.5", method="GET"
+} 17.0
+http_request_duration_seconds_bucket{
+endpoint="/users", le="0.75", method="GET"
+} 17.0
+http_request_duration_seconds_bucket{endpoint="/users", le="1.0", method="GET"} 17.0
+http_request_duration_seconds_bucket{endpoint="/users", le="2.5", method="GET"
+} 17.0
+http_request_duration_seconds_bucket{
+endpoint="/users", le="5.0", method="GET"
+} 17.0
+http_request_duration_seconds_bucket{
+endpoint="/users",le="7.5", method="GET"
+} 17.0
+http_request_duration_seconds_bucket{
+endpoint="/users", le="10.0", method="GET"
+} 17.0
+http_request_duration_seconds_bucket{endpoint="/users", le="+Inf", method="GET"} 17.0
+http_request_duration_seconds_count{endpoint="/users", method="GET"} 17.0
+http_request_duration_seconds_sum{endpoint="/users", method="GET"} 0.31702375411987305
+http_request_duration_seconds_bucket{endpoint="/user", le="0.005", method="POST"} 0.0
+http_request_duration_seconds_bucket{endpoint="/user", le="0.01", method="POST"
+} 0.0
+http_request_duration_seconds_bucket{
+endpoint="/user", le="0.025", method="POST"
+} 8.0
+http_request_duration_seconds_bucket{
+endpoint="/user",le="0.05", method="POST"
+} 30.0
+http_request_duration_seconds_bucket{
+endpoint="/user", le="0.075", method="POST"
+} 30.0
+http_request_duration_seconds_bucket{endpoint="/user", le="0.1", method="POST"} 30.0
+http_request_duration_seconds_bucket{endpoint="/user", le="0.25", method="POST"
+} 30.0
+http_request_duration_seconds_bucket{
+endpoint="/user", le="0.5", method="POST"
+} 31.0
+http_request_duration_seconds_bucket{
+endpoint="/user",le="0.75", method="POST"
+} 31.0
+http_request_duration_seconds_bucket{
+endpoint="/user", le="1.0", method="POST"
+} 31.0
+http_request_duration_seconds_bucket{endpoint="/user", le="2.5", method="POST"} 31.0
+http_request_duration_seconds_bucket{endpoint="/user", le="5.0", method="POST"
+} 31.0
+http_request_duration_seconds_bucket{
+endpoint="/user", le="7.5", method="POST"
+} 31.0
+http_request_duration_seconds_bucket{
+endpoint="/user",le="10.0", method="POST"
+} 31.0
+http_request_duration_seconds_bucket{
+endpoint="/user", le="+Inf", method="POST"
+} 31.0
+http_request_duration_seconds_count{
+endpoint="/user", method="POST"
+} 31.0
+http_request_duration_seconds_sum{endpoint="/user", method="POST"
+} 1.270932674407959
+http_request_duration_seconds_bucket{
+endpoint="/user", le="0.005", method="PATCH"
+} 1.0
+http_request_duration_seconds_bucket{endpoint="/user", le="0.01", method="PATCH"} 1.0
+http_request_duration_seconds_bucket{endpoint="/user", le="0.025", method="PATCH"
+} 3.0
+http_request_duration_seconds_bucket{
+endpoint="/user", le="0.05", method="PATCH"
+} 4.0
+http_request_duration_seconds_bucket{
+endpoint="/user",le="0.075", method="PATCH"
+} 4.0
+http_request_duration_seconds_bucket{
+endpoint="/user", le="0.1", method="PATCH"
+} 4.0
+http_request_duration_seconds_bucket{endpoint="/user", le="0.25", method="PATCH"} 4.0
+http_request_duration_seconds_bucket{endpoint="/user", le="0.5", method="PATCH"
+} 4.0
+http_request_duration_seconds_bucket{
+endpoint="/user", le="0.75", method="PATCH"
+} 4.0
+http_request_duration_seconds_bucket{
+endpoint="/user",le="1.0", method="PATCH"
+} 4.0
+http_request_duration_seconds_bucket{
+endpoint="/user", le="2.5", method="PATCH"
+} 4.0
+http_request_duration_seconds_bucket{endpoint="/user", le="5.0", method="PATCH"} 4.0
+http_request_duration_seconds_bucket{endpoint="/user", le="7.5", method="PATCH"
+} 4.0
+http_request_duration_seconds_bucket{
+endpoint="/user", le="10.0", method="PATCH"
+} 4.0
+http_request_duration_seconds_bucket{
+endpoint="/user",le="+Inf", method="PATCH"
+} 4.0
+http_request_duration_seconds_count{
+endpoint="/user", method="PATCH"
+} 4.0
+http_request_duration_seconds_sum{
+endpoint="/user", method="PATCH"
+} 0.07535743713378906
+http_request_duration_seconds_bucket{
+endpoint="/recommendations/68e0e77ff9036667c36840dc",le="0.005", method="GET"
+} 0.0
+http_request_duration_seconds_bucket{
+endpoint="/recommendations/68e0e77ff9036667c36840dc", le="0.01", method="GET"
+} 20.0
+http_request_duration_seconds_bucket{endpoint="/recommendations/68e0e77ff9036667c36840dc", le="0.025", method="GET"} 123.0
+http_request_duration_seconds_bucket{endpoint="/recommendations/68e0e77ff9036667c36840dc", le="0.05", method="GET"
+} 123.0
+http_request_duration_seconds_bucket{
+endpoint="/recommendations/68e0e77ff9036667c36840dc", le="0.075", method="GET"
+} 123.0
+http_request_duration_seconds_bucket{
+endpoint="/recommendations/68e0e77ff9036667c36840dc",le="0.1", method="GET"
+} 123.0
+http_request_duration_seconds_bucket{
+endpoint="/recommendations/68e0e77ff9036667c36840dc", le="0.25", method="GET"
+} 123.0
+http_request_duration_seconds_bucket{endpoint="/recommendations/68e0e77ff9036667c36840dc", le="0.5", method="GET"} 123.0
+http_request_duration_seconds_bucket{endpoint="/recommendations/68e0e77ff9036667c36840dc", le="0.75", method="GET"
+} 123.0
+http_request_duration_seconds_bucket{
+endpoint="/recommendations/68e0e77ff9036667c36840dc", le="1.0", method="GET"
+} 123.0
+http_request_duration_seconds_bucket{
+endpoint="/recommendations/68e0e77ff9036667c36840dc",le="2.5", method="GET"
+} 123.0
+http_request_duration_seconds_bucket{
+endpoint="/recommendations/68e0e77ff9036667c36840dc", le="5.0", method="GET"
+} 123.0
+http_request_duration_seconds_bucket{endpoint="/recommendations/68e0e77ff9036667c36840dc", le="7.5", method="GET"} 123.0
+http_request_duration_seconds_bucket{endpoint="/recommendations/68e0e77ff9036667c36840dc", le="10.0", method="GET"
+} 123.0
+http_request_duration_seconds_bucket{
+endpoint="/recommendations/68e0e77ff9036667c36840dc", le="+Inf", method="GET"
+} 123.0
+http_request_duration_seconds_count{
+endpoint="/recommendations/68e0e77ff9036667c36840dc",method="GET"
+} 123.0
+http_request_duration_seconds_sum{
+endpoint="/recommendations/68e0e77ff9036667c36840dc", method="GET"
+} 1.504371166229248
+http_request_duration_seconds_bucket{
+endpoint="/recommendations/addRequest", le="0.005", method="POST"
+} 0.0
+http_request_duration_seconds_bucket{
+endpoint="/recommendations/addRequest",le="0.01", method="POST"
+} 1.0
+http_request_duration_seconds_bucket{
+endpoint="/recommendations/addRequest", le="0.025", method="POST"
+} 1.0
+http_request_duration_seconds_bucket{endpoint="/recommendations/addRequest", le="0.05", method="POST"} 9.0
+http_request_duration_seconds_bucket{endpoint="/recommendations/addRequest", le="0.075", method="POST"
+} 9.0
+http_request_duration_seconds_bucket{
+endpoint="/recommendations/addRequest", le="0.1", method="POST"
+} 9.0
+http_request_duration_seconds_bucket{
+endpoint="/recommendations/addRequest",le="0.25", method="POST"
+} 9.0
+http_request_duration_seconds_bucket{
+endpoint="/recommendations/addRequest", le="0.5", method="POST"
+} 10.0
+http_request_duration_seconds_bucket{endpoint="/recommendations/addRequest", le="0.75", method="POST"} 10.0
+http_request_duration_seconds_bucket{endpoint="/recommendations/addRequest", le="1.0", method="POST"
+} 10.0
+http_request_duration_seconds_bucket{
+endpoint="/recommendations/addRequest", le="2.5", method="POST"
+} 10.0
+http_request_duration_seconds_bucket{
+endpoint="/recommendations/addRequest",le="5.0", method="POST"
+} 10.0
+http_request_duration_seconds_bucket{
+endpoint="/recommendations/addRequest", le="7.5", method="POST"
+} 10.0
+http_request_duration_seconds_bucket{endpoint="/recommendations/addRequest", le="10.0", method="POST"} 10.0
+http_request_duration_seconds_bucket{endpoint="/recommendations/addRequest", le="+Inf", method="POST"
+} 10.0
+http_request_duration_seconds_count{
+endpoint="/recommendations/addRequest", method="POST"} 10.0
+http_request_duration_seconds_sum{
+endpoint="/recommendations/addRequest", method="POST"
+} 0.7289156913757324
+# HELP http_request_duration_seconds_created HTTP request duration in seconds
+# TYPE http_request_duration_seconds_created gauge
+http_request_duration_seconds_created{endpoint="/metrics", method="GET"} 1.7595707157285326e+09
+http_request_duration_seconds_created{
+endpoint="/auth", method="POST"
+} 1.7595715119175003e+09
+http_request_duration_seconds_created{endpoint="/films", method="GET"} 1.75957152601118e+09
+http_request_duration_seconds_created{endpoint="/film/1132", method="GET"} 1.7595715629786723e+09
+http_request_duration_seconds_created{
+endpoint="/film/68c49b96ded1f11b0fed0a50", method="GET"
+} 1.7595715861544423e+09
+http_request_duration_seconds_created{endpoint="/users", method="GET"
+} 1.7595716029517837e+09
+http_request_duration_seconds_created{
+endpoint="/user", method="POST"
+} 1.7595716641713035e+09
+http_request_duration_seconds_created{
+endpoint="/user", method="PATCH"
+} 1.7595725924158247e+09
+http_request_duration_seconds_created{
+endpoint="/recommendations/68e0e77ff9036667c36840dc",method="GET"
+} 1.759572649549925e+09
+http_request_duration_seconds_created{
+endpoint="/recommendations/addRequest", method="POST"
+} 1.7595726787315948e+09
+# HELP http_requests_in_flight Number of HTTP requests currently being processed
+# TYPE http_requests_in_flight gauge
+http_requests_in_flight 1.0
+# HELP api_calls_total Total API calls
+# TYPE api_calls_total counter

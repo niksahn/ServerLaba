@@ -146,3 +146,4 @@ docker-compose up -d
    - `{__name__=~"http_.*"}` - HTTP метрики
    - `{__name__=~"jvm_.*"}` - JVM метрики
    - `{__name__=~"process_.*"}` - метрики процессов
+

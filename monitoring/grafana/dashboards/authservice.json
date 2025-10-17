@@ -19,15 +19,7 @@
       "title": "HTTP Requests Rate",
       "gridPos": { "x": 6, "y": 0, "w": 18, "h": 8 },
       "targets": [
-        { "expr": "sum by (method, code) (rate(http_requests_total{job=\"authservice\"}[5m]))", "refId": "A" }
-      ]
-    },
-    {
-      "type": "timeseries",
-      "title": "HTTP Latency p95",
-      "gridPos": { "x": 0, "y": 8, "w": 12, "h": 8 },
-      "targets": [
-        { "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{job=\"authservice\"}[5m])) by (le))", "refId": "A" }
+        { "expr": "sum by (method, code, endpoint) (rate(http_request_duration_seconds_bucket{job=\"authservice\"}[5m]))", "refId": "A" }
       ]
     },
     {
@@ -35,7 +27,7 @@
       "title": "5xx Errors Rate",
       "gridPos": { "x": 12, "y": 8, "w": 12, "h": 8 },
       "targets": [
-        { "expr": "sum(rate(http_requests_total{job=\"authservice\",code=~\"5..\"}[5m]))", "refId": "A" }
+        { "expr": "sum(rate(http_requests_received_total{job=\"authservice\",code=~\"5..\"}[5m]))", "refId": "A" }
       ]
     },
     {
@@ -56,3 +48,276 @@
     }
   ]
 }
+
+
+C:\projects\servers>curl http://localhost:8010/metrics
+# HELP http_request_duration_seconds The duration of HTTP requests processed by an ASP.NET Core application.
+# TYPE http_request_duration_seconds histogram
+http_request_duration_seconds_sum{code="200",method="POST",controller="Auth",action="Authenticate",endpoint="auth"} 1.0898203
+http_request_duration_seconds_count{code="200",method="POST",controller="Auth",action="Authenticate",endpoint="auth"} 12
+http_request_duration_seconds_bucket{code="200",method="POST",controller="Auth",action="Authenticate",endpoint="auth",le="0.001"} 0
+http_request_duration_seconds_bucket{code="200",method="POST",controller="Auth",action="Authenticate",endpoint="auth",le="0.002"} 0
+http_request_duration_seconds_bucket{code="200",method="POST",controller="Auth",action="Authenticate",endpoint="auth",le="0.004"} 0
+http_request_duration_seconds_bucket{code="200",method="POST",controller="Auth",action="Authenticate",endpoint="auth",le="0.008"} 0
+http_request_duration_seconds_bucket{code="200",method="POST",controller="Auth",action="Authenticate",endpoint="auth",le="0.016"} 0
+http_request_duration_seconds_bucket{code="200",method="POST",controller="Auth",action="Authenticate",endpoint="auth",le="0.032"} 8
+http_request_duration_seconds_bucket{code="200",method="POST",controller="Auth",action="Authenticate",endpoint="auth",le="0.064"} 9
+http_request_duration_seconds_bucket{code="200",method="POST",controller="Auth",action="Authenticate",endpoint="auth",le="0.128"} 10
+http_request_duration_seconds_bucket{code="200",method="POST",controller="Auth",action="Authenticate",endpoint="auth",le="0.256"} 11
+http_request_duration_seconds_bucket{code="200",method="POST",controller="Auth",action="Authenticate",endpoint="auth",le="0.512"} 11
+http_request_duration_seconds_bucket{code="200",method="POST",controller="Auth",action="Authenticate",endpoint="auth",le="1.024"} 12
+http_request_duration_seconds_bucket{code="200",method="POST",controller="Auth",action="Authenticate",endpoint="auth",le="2.048"} 12
+http_request_duration_seconds_bucket{code="200",method="POST",controller="Auth",action="Authenticate",endpoint="auth",le="4.096"} 12
+http_request_duration_seconds_bucket{code="200",method="POST",controller="Auth",action="Authenticate",endpoint="auth",le="8.192"} 12
+http_request_duration_seconds_bucket{code="200",method="POST",controller="Auth",action="Authenticate",endpoint="auth",le="16.384"} 12
+http_request_duration_seconds_bucket{code="200",method="POST",controller="Auth",action="Authenticate",endpoint="auth",le="32.768"} 12
+http_request_duration_seconds_bucket{code="200",method="POST",controller="Auth",action="Authenticate",endpoint="auth",le="+Inf"} 12
+http_request_duration_seconds_sum{code="401",method="POST",controller="Auth",action="Identify",endpoint="auth/identify"} 0.053758600000000004
+http_request_duration_seconds_count{code="401",method="POST",controller="Auth",action="Identify",endpoint="auth/identify"} 13
+http_request_duration_seconds_bucket{code="401",method="POST",controller="Auth",action="Identify",endpoint="auth/identify",le="0.001"} 5
+http_request_duration_seconds_bucket{code="401",method="POST",controller="Auth",action="Identify",endpoint="auth/identify",le="0.002"} 9
+http_request_duration_seconds_bucket{code="401",method="POST",controller="Auth",action="Identify",endpoint="auth/identify",le="0.004"} 12
+http_request_duration_seconds_bucket{code="401",method="POST",controller="Auth",action="Identify",endpoint="auth/identify",le="0.008"} 12
+http_request_duration_seconds_bucket{code="401",method="POST",controller="Auth",action="Identify",endpoint="auth/identify",le="0.016"} 12
+http_request_duration_seconds_bucket{code="401",method="POST",controller="Auth",action="Identify",endpoint="auth/identify",le="0.032"} 12
+http_request_duration_seconds_bucket{code="401",method="POST",controller="Auth",action="Identify",endpoint="auth/identify",le="0.064"} 13
+http_request_duration_seconds_bucket{code="401",method="POST",controller="Auth",action="Identify",endpoint="auth/identify",le="0.128"} 13
+http_request_duration_seconds_bucket{code="401",method="POST",controller="Auth",action="Identify",endpoint="auth/identify",le="0.256"} 13
+http_request_duration_seconds_bucket{code="401",method="POST",controller="Auth",action="Identify",endpoint="auth/identify",le="0.512"} 13
+http_request_duration_seconds_bucket{code="401",method="POST",controller="Auth",action="Identify",endpoint="auth/identify",le="1.024"} 13
+http_request_duration_seconds_bucket{code="401",method="POST",controller="Auth",action="Identify",endpoint="auth/identify",le="2.048"} 13
+http_request_duration_seconds_bucket{code="401",method="POST",controller="Auth",action="Identify",endpoint="auth/identify",le="4.096"} 13
+http_request_duration_seconds_bucket{code="401",method="POST",controller="Auth",action="Identify",endpoint="auth/identify",le="8.192"} 13
+http_request_duration_seconds_bucket{code="401",method="POST",controller="Auth",action="Identify",endpoint="auth/identify",le="16.384"} 13
+http_request_duration_seconds_bucket{code="401",method="POST",controller="Auth",action="Identify",endpoint="auth/identify",le="32.768"} 13
+http_request_duration_seconds_bucket{code="401",method="POST",controller="Auth",action="Identify",endpoint="auth/identify",le="+Inf"} 13
+http_request_duration_seconds_sum{code="200",method="POST",controller="Auth",action="Identify",endpoint="auth/identify"} 0.4610219999999998
+http_request_duration_seconds_count{code="200",method="POST",controller="Auth",action="Identify",endpoint="auth/identify"} 177
+http_request_duration_seconds_bucket{code="200",method="POST",controller="Auth",action="Identify",endpoint="auth/identify",le="0.001"} 0
+http_request_duration_seconds_bucket{code="200",method="POST",controller="Auth",action="Identify",endpoint="auth/identify",le="0.002"} 85
+http_request_duration_seconds_bucket{code="200",method="POST",controller="Auth",action="Identify",endpoint="auth/identify",le="0.004"} 172
+http_request_duration_seconds_bucket{code="200",method="POST",controller="Auth",action="Identify",endpoint="auth/identify",le="0.008"} 176
+http_request_duration_seconds_bucket{code="200",method="POST",controller="Auth",action="Identify",endpoint="auth/identify",le="0.016"} 176
+http_request_duration_seconds_bucket{code="200",method="POST",controller="Auth",action="Identify",endpoint="auth/identify",le="0.032"} 176
+http_request_duration_seconds_bucket{code="200",method="POST",controller="Auth",action="Identify",endpoint="auth/identify",le="0.064"} 177
+http_request_duration_seconds_bucket{code="200",method="POST",controller="Auth",action="Identify",endpoint="auth/identify",le="0.128"} 177
+http_request_duration_seconds_bucket{code="200",method="POST",controller="Auth",action="Identify",endpoint="auth/identify",le="0.256"} 177
+http_request_duration_seconds_bucket{code="200",method="POST",controller="Auth",action="Identify",endpoint="auth/identify",le="0.512"} 177
+http_request_duration_seconds_bucket{code="200",method="POST",controller="Auth",action="Identify",endpoint="auth/identify",le="1.024"} 177
+http_request_duration_seconds_bucket{code="200",method="POST",controller="Auth",action="Identify",endpoint="auth/identify",le="2.048"} 177
+http_request_duration_seconds_bucket{code="200",method="POST",controller="Auth",action="Identify",endpoint="auth/identify",le="4.096"} 177
+http_request_duration_seconds_bucket{code="200",method="POST",controller="Auth",action="Identify",endpoint="auth/identify",le="8.192"} 177
+http_request_duration_seconds_bucket{code="200",method="POST",controller="Auth",action="Identify",endpoint="auth/identify",le="16.384"} 177
+http_request_duration_seconds_bucket{code="200",method="POST",controller="Auth",action="Identify",endpoint="auth/identify",le="32.768"} 177
+http_request_duration_seconds_bucket{code="200",method="POST",controller="Auth",action="Identify",endpoint="auth/identify",le="+Inf"} 177
+# HELP http_requests_received_total Provides the count of HTTP requests that have been processed by the ASP.NET Core pipeline.
+# TYPE http_requests_received_total counter
+http_requests_received_total{code="200",method="POST",controller="Auth",action="Authenticate",endpoint="auth"} 12
+http_requests_received_total{code="401",method="POST",controller="Auth",action="Identify",endpoint="auth/identify"} 13
+http_requests_received_total{code="200",method="POST",controller="Auth",action="Identify",endpoint="auth/identify"} 177
+# HELP http_requests_in_progress The number of requests currently in progress in the ASP.NET Core pipeline. One series without controller/action label values counts all in-progress requests, with separate series existing for each controller-action pair.
+# TYPE http_requests_in_progress gauge
+http_requests_in_progress{method="POST",controller="Auth",action="Authenticate",endpoint="auth"} 0
+http_requests_in_progress{method="POST",controller="Auth",action="Identify",endpoint="auth/identify"} 0
+# HELP dotnet_collection_count_total GC collection count
+# TYPE dotnet_collection_count_total counter
+dotnet_collection_count_total{generation="0"} 6
+dotnet_collection_count_total{generation="1"} 3
+dotnet_collection_count_total{generation="2"} 1
+# HELP process_start_time_seconds Start time of the process since unix epoch in seconds.
+# TYPE process_start_time_seconds gauge
+process_start_time_seconds 1759570706.585125
+# HELP process_cpu_seconds_total Total user and system CPU time spent in seconds.
+# TYPE process_cpu_seconds_total counter
+process_cpu_seconds_total 9.25
+# HELP process_virtual_memory_bytes Virtual memory size in bytes.
+# TYPE process_virtual_memory_bytes gauge
+process_virtual_memory_bytes 25096683520
+# HELP process_working_set_bytes Process working set
+# TYPE process_working_set_bytes gauge
+process_working_set_bytes 149143552
+# HELP process_private_memory_bytes Process private memory size
+# TYPE process_private_memory_bytes gauge
+process_private_memory_bytes 606638080
+# HELP process_open_handles Number of open handles
+# TYPE process_open_handles gauge
+process_open_handles 195
+# HELP process_num_threads Total number of threads
+# TYPE process_num_threads gauge
+process_num_threads 48
+# HELP dotnet_total_memory_bytes Total known allocated memory
+# TYPE dotnet_total_memory_bytes gauge
+dotnet_total_memory_bytes 9991360
+# HELP prometheus_net_metric_families Number of metric families currently registered.
+# TYPE prometheus_net_metric_families gauge
+prometheus_net_metric_families{metric_type="counter"} 17
+prometheus_net_metric_families{metric_type="gauge"} 57
+prometheus_net_metric_families{metric_type="summary"} 0
+prometheus_net_metric_families{metric_type="histogram"} 1
+# HELP prometheus_net_metric_instances Number of metric instances currently registered across all metric families.
+# TYPE prometheus_net_metric_instances gauge
+prometheus_net_metric_instances{metric_type="counter"} 21
+prometheus_net_metric_instances{metric_type="gauge"} 67
+prometheus_net_metric_instances{metric_type="summary"} 0
+prometheus_net_metric_instances{metric_type="histogram"} 3
+# HELP prometheus_net_metric_timeseries Number of metric timeseries currently generated from all metric instances.
+# TYPE prometheus_net_metric_timeseries gauge
+prometheus_net_metric_timeseries{metric_type="counter"} 21
+prometheus_net_metric_timeseries{metric_type="gauge"} 67
+prometheus_net_metric_timeseries{metric_type="summary"} 0
+prometheus_net_metric_timeseries{metric_type="histogram"} 57
+# HELP prometheus_net_exemplars_recorded_total Number of exemplars that were accepted into in-memory storage in the prometheus-net SDK.
+# TYPE prometheus_net_exemplars_recorded_total counter
+prometheus_net_exemplars_recorded_total 404
+# HELP prometheus_net_eventcounteradapter_sources_connected_total Number of event sources that are currently connected to the adapter.
+# TYPE prometheus_net_eventcounteradapter_sources_connected_total gauge
+prometheus_net_eventcounteradapter_sources_connected_total 6
+# HELP prometheus_net_meteradapter_instruments_connected Number of instruments that are currently connected to the adapter.
+# TYPE prometheus_net_meteradapter_instruments_connected gauge
+prometheus_net_meteradapter_instruments_connected 0
+# HELP system_runtime_cpu_usage (%) CPU Usage
+# TYPE system_runtime_cpu_usage gauge
+system_runtime_cpu_usage 0
+# HELP system_runtime_working_set (MB) Working Set
+# TYPE system_runtime_working_set gauge
+system_runtime_working_set 149
+# HELP system_runtime_gc_heap_size (MB) GC Heap Size
+# TYPE system_runtime_gc_heap_size gauge
+system_runtime_gc_heap_size 9
+# HELP system_runtime_gen_0_gc_count_total Gen 0 GC Count
+# TYPE system_runtime_gen_0_gc_count_total counter
+system_runtime_gen_0_gc_count_total 6
+# HELP system_runtime_gen_1_gc_count_total Gen 1 GC Count
+# TYPE system_runtime_gen_1_gc_count_total counter
+system_runtime_gen_1_gc_count_total 3
+# HELP system_runtime_gen_2_gc_count_total Gen 2 GC Count
+# TYPE system_runtime_gen_2_gc_count_total counter
+system_runtime_gen_2_gc_count_total 1
+# HELP system_runtime_threadpool_thread_count ThreadPool Thread Count
+# TYPE system_runtime_threadpool_thread_count gauge
+system_runtime_threadpool_thread_count 6
+# HELP system_runtime_monitor_lock_contention_count_total Monitor Lock Contention Count
+# TYPE system_runtime_monitor_lock_contention_count_total counter
+system_runtime_monitor_lock_contention_count_total 84
+# HELP system_runtime_threadpool_queue_length ThreadPool Queue Length
+# TYPE system_runtime_threadpool_queue_length gauge
+system_runtime_threadpool_queue_length 0
+# HELP system_runtime_threadpool_completed_items_count_total ThreadPool Completed Work Item Count
+# TYPE system_runtime_threadpool_completed_items_count_total counter
+system_runtime_threadpool_completed_items_count_total 4110
+# HELP system_runtime_alloc_total (B) Allocation Rate
+# TYPE system_runtime_alloc_total counter
+system_runtime_alloc_total 86662408
+# HELP system_runtime_active_timer_count Number of Active Timers
+# TYPE system_runtime_active_timer_count gauge
+system_runtime_active_timer_count 3
+# HELP system_runtime_gc_fragmentation (%) GC Fragmentation
+# TYPE system_runtime_gc_fragmentation gauge
+system_runtime_gc_fragmentation 31.831470698156654
+# HELP system_runtime_gc_committed (MB) GC Committed Bytes
+# TYPE system_runtime_gc_committed gauge
+system_runtime_gc_committed 31
+# HELP system_runtime_exception_count_total Exception Count
+# TYPE system_runtime_exception_count_total counter
+system_runtime_exception_count_total 384
+# HELP system_runtime_time_in_gc (%) % Time in GC since last GC
+# TYPE system_runtime_time_in_gc gauge
+system_runtime_time_in_gc 0
+# HELP system_runtime_gen_0_size (B) Gen 0 Size
+# TYPE system_runtime_gen_0_size gauge
+system_runtime_gen_0_size 1683456
+# HELP system_runtime_gen_1_size (B) Gen 1 Size
+# TYPE system_runtime_gen_1_size gauge
+system_runtime_gen_1_size 126632
+# HELP system_runtime_gen_2_size (B) Gen 2 Size
+# TYPE system_runtime_gen_2_size gauge
+system_runtime_gen_2_size 3163160
+# HELP system_runtime_loh_size (B) LOH Size
+# TYPE system_runtime_loh_size gauge
+system_runtime_loh_size 98672
+# HELP system_runtime_poh_size (B) POH (Pinned Object Heap) Size
+# TYPE system_runtime_poh_size gauge
+system_runtime_poh_size 236688
+# HELP system_runtime_assembly_count Number of Assemblies Loaded
+# TYPE system_runtime_assembly_count gauge
+system_runtime_assembly_count 140
+# HELP system_runtime_il_bytes_jitted (B) IL Bytes Jitted
+# TYPE system_runtime_il_bytes_jitted gauge
+system_runtime_il_bytes_jitted 844004
+# HELP system_runtime_methods_jitted_count Number of Methods Jitted
+# TYPE system_runtime_methods_jitted_count gauge
+system_runtime_methods_jitted_count 11691
+# HELP system_runtime_time_in_jit_total (ms) Time spent in JIT
+# TYPE system_runtime_time_in_jit_total counter
+system_runtime_time_in_jit_total 2786.9685
+# HELP microsoft_aspnetcore_hosting_requests_per_second_total Request Rate
+# TYPE microsoft_aspnetcore_hosting_requests_per_second_total counter
+microsoft_aspnetcore_hosting_requests_per_second_total 459
+# HELP microsoft_aspnetcore_hosting_total_requests Total Requests
+# TYPE microsoft_aspnetcore_hosting_total_requests gauge
+microsoft_aspnetcore_hosting_total_requests 459
+# HELP microsoft_aspnetcore_hosting_current_requests Current Requests
+# TYPE microsoft_aspnetcore_hosting_current_requests gauge
+microsoft_aspnetcore_hosting_current_requests 0
+# HELP microsoft_aspnetcore_hosting_failed_requests Failed Requests
+# TYPE microsoft_aspnetcore_hosting_failed_requests gauge
+microsoft_aspnetcore_hosting_failed_requests 0
+# HELP microsoft_aspnetcore_server_kestrel_connections_per_second_total Connection Rate
+# TYPE microsoft_aspnetcore_server_kestrel_connections_per_second_total counter
+microsoft_aspnetcore_server_kestrel_connections_per_second_total 203
+# HELP microsoft_aspnetcore_server_kestrel_total_connections Total Connections
+# TYPE microsoft_aspnetcore_server_kestrel_total_connections gauge
+microsoft_aspnetcore_server_kestrel_total_connections 204
+# HELP microsoft_aspnetcore_server_kestrel_tls_handshakes_per_second_total TLS Handshake Rate
+# TYPE microsoft_aspnetcore_server_kestrel_tls_handshakes_per_second_total counter
+microsoft_aspnetcore_server_kestrel_tls_handshakes_per_second_total 0
+# HELP microsoft_aspnetcore_server_kestrel_total_tls_handshakes Total TLS Handshakes
+# TYPE microsoft_aspnetcore_server_kestrel_total_tls_handshakes gauge
+microsoft_aspnetcore_server_kestrel_total_tls_handshakes 0
+# HELP microsoft_aspnetcore_server_kestrel_current_tls_handshakes Current TLS Handshakes
+# TYPE microsoft_aspnetcore_server_kestrel_current_tls_handshakes gauge
+microsoft_aspnetcore_server_kestrel_current_tls_handshakes 0
+# HELP microsoft_aspnetcore_server_kestrel_failed_tls_handshakes Failed TLS Handshakes
+# TYPE microsoft_aspnetcore_server_kestrel_failed_tls_handshakes gauge
+microsoft_aspnetcore_server_kestrel_failed_tls_handshakes 0
+# HELP microsoft_aspnetcore_server_kestrel_current_connections Current Connections
+# TYPE microsoft_aspnetcore_server_kestrel_current_connections gauge
+microsoft_aspnetcore_server_kestrel_current_connections 1
+# HELP microsoft_aspnetcore_server_kestrel_connection_queue_length Connection Queue Length
+# TYPE microsoft_aspnetcore_server_kestrel_connection_queue_length gauge
+microsoft_aspnetcore_server_kestrel_connection_queue_length 0
+# HELP microsoft_aspnetcore_server_kestrel_request_queue_length Request Queue Length
+# TYPE microsoft_aspnetcore_server_kestrel_request_queue_length gauge
+microsoft_aspnetcore_server_kestrel_request_queue_length 0
+# HELP microsoft_aspnetcore_server_kestrel_current_upgraded_requests Current Upgraded Requests (WebSockets)
+# TYPE microsoft_aspnetcore_server_kestrel_current_upgraded_requests gauge
+microsoft_aspnetcore_server_kestrel_current_upgraded_requests 0
+# HELP system_net_sockets_outgoing_connections_established Outgoing Connections Established
+# TYPE system_net_sockets_outgoing_connections_established gauge
+system_net_sockets_outgoing_connections_established 9
+# HELP system_net_sockets_incoming_connections_established Incoming Connections Established
+# TYPE system_net_sockets_incoming_connections_established gauge
+system_net_sockets_incoming_connections_established 203
+# HELP system_net_sockets_bytes_received Bytes Received
+# TYPE system_net_sockets_bytes_received gauge
+system_net_sockets_bytes_received 518334
+# HELP system_net_sockets_bytes_sent Bytes Sent
+# TYPE system_net_sockets_bytes_sent gauge
+system_net_sockets_bytes_sent 5453378
+# HELP system_net_sockets_datagrams_received Datagrams Received
+# TYPE system_net_sockets_datagrams_received gauge
+system_net_sockets_datagrams_received 0
+# HELP system_net_sockets_datagrams_sent Datagrams Sent
+# TYPE system_net_sockets_datagrams_sent gauge
+system_net_sockets_datagrams_sent 0
+# HELP system_net_nameresolution_dns_lookups_requested DNS Lookups Requested
+# TYPE system_net_nameresolution_dns_lookups_requested gauge
+system_net_nameresolution_dns_lookups_requested 9
+# HELP system_net_nameresolution_current_dns_lookups Current DNS Lookups
+# TYPE system_net_nameresolution_current_dns_lookups gauge
+system_net_nameresolution_current_dns_lookups 0
+# HELP system_net_nameresolution_dns_lookups_duration (ms) Average DNS Lookup Duration
+# TYPE system_net_nameresolution_dns_lookups_duration gauge
+system_net_nameresolution_dns_lookups_duration 0
+# HELP system_net_http_requests_started Requests Started
+# TYPE system_net_http_requests_started gauge

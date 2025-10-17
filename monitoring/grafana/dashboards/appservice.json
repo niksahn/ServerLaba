@@ -19,17 +19,7 @@
       "title": "HTTP Requests Rate",
       "gridPos": { "x": 6, "y": 0, "w": 18, "h": 8 },
       "targets": [
-        { "expr": "sum by (method, status) (rate(http_server_requests_seconds_count{job=\"app-service\"}[5m]))", "refId": "A" },
-        { "expr": "sum by (method, status) (rate(http_requests_total{job=\"app-service\"}[5m]))", "refId": "B" }
-      ]
-    },
-    {
-      "type": "timeseries",
-      "title": "HTTP Latency p95",
-      "gridPos": { "x": 0, "y": 8, "w": 12, "h": 8 },
-      "targets": [
-        { "expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket{job=\"app-service\"}[5m])) by (le))", "refId": "A" },
-        { "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{job=\"app-service\"}[5m])) by (le))", "refId": "B" }
+        { "expr": "sum by (method, status, endpoint) (rate(ktor_http_server_requests_seconds_count{job=\"app-service\"}[5m]))", "refId": "A" }
       ]
     },
     {
@@ -37,8 +27,15 @@
       "title": "5xx Errors Rate",
       "gridPos": { "x": 12, "y": 8, "w": 12, "h": 8 },
       "targets": [
-        { "expr": "sum(rate(http_server_requests_seconds_count{job=\"app-service\",status=~\"5..\"}[5m]))", "refId": "A" },
-        { "expr": "sum(rate(http_requests_total{job=\"app-service\",status_code=~\"5..\"}[5m]))", "refId": "B" }
+        { "expr": "sum(rate(ktor_http_server_requests_seconds_count{job=\"app-service\",status=~\"5..\"}[5m]))", "refId": "A" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "4xx Errors Rate",
+      "gridPos": { "x": 12, "y": 8, "w": 12, "h": 8 },
+      "targets": [
+        { "expr": "sum(rate(ktor_http_server_requests_seconds_count{job=\"app-service\",status=~\"4..\"}[5m]))", "refId": "A" }
       ]
     },
     {
@@ -46,8 +43,7 @@
       "title": "Active Connections",
       "gridPos": { "x": 0, "y": 16, "w": 12, "h": 8 },
       "targets": [
-        { "expr": "http_server_requests_seconds_active{job=\"app-service\"}", "refId": "A" },
-        { "expr": "http_requests_in_flight{job=\"app-service\"}", "refId": "B" }
+        { "expr": "ktor_http_server_requests_active{job=\"app-service\"}", "refId": "A" }
       ]
     },
     {

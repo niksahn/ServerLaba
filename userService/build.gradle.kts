@@ -28,29 +28,31 @@ repositories {
 dependencies {
     implementation("org.mongodb:mongodb-driver-kotlin-coroutine:$mongo")
     implementation("org.mongodb:bson-kotlin:$mongo")
-
-    implementation ("io.insert-koin:koin-ktor:$koin_version")
-    implementation("io.ktor:ktor-server-status-pages")
-    implementation ("io.insert-koin:koin-logger-slf4j:$koin_version")
-
-    implementation("org.apache.kafka:kafka-streams:3.0.0")
-
-    implementation("io.ktor:ktor-client-java")
-    implementation("io.ktor:ktor-client-core-jvm")
-    implementation("io.ktor:ktor-client-content-negotiation-jvm")
-
-    implementation("io.ktor:ktor-server-content-negotiation-jvm")
-    implementation("io.ktor:ktor-server-core-jvm")
-    implementation("io.ktor:ktor-serialization-kotlinx-json-jvm")
-    implementation("io.ktor:ktor-server-webjars-jvm")
-    implementation("io.ktor:ktor-server-netty-jvm")
+    
+    // Ktor dependencies with explicit versions
+    implementation("io.ktor:ktor-server-swagger:$ktor_version")
+    implementation("io.ktor:ktor-server-content-negotiation:$ktor_version")
+    implementation("io.ktor:ktor-server-core:$ktor_version")
+    implementation("io.ktor:ktor-client-core:$ktor_version")
+    implementation("io.ktor:ktor-client-content-negotiation:$ktor_version")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:$ktor_version")
+    implementation("io.ktor:ktor-server-webjars:$ktor_version")
+    implementation("io.ktor:ktor-server-netty:$ktor_version")
+    implementation("io.ktor:ktor-client-java:$ktor_version")
+    implementation("io.ktor:ktor-server-config-yaml:$ktor_version")
+    implementation("io.ktor:ktor-server-status-pages:$ktor_version")
+    implementation("io.ktor:ktor-server-metrics-micrometer:$ktor_version")
+    
+    // Other dependencies
     implementation("ch.qos.logback:logback-classic:$logback_version")
-    implementation("io.ktor:ktor-server-config-yaml")
-    testImplementation("io.ktor:ktor-server-test-host-jvm")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
-    implementation("io.ktor:ktor-server-swagger")
+    implementation("io.insert-koin:koin-ktor:$koin_version")
+    implementation("io.insert-koin:koin-logger-slf4j:$koin_version")
+    implementation("org.apache.kafka:kafka-streams:3.0.0")
     
     // Prometheus metrics
-    implementation("io.ktor:ktor-server-metrics-micrometer:$ktor_version")
     implementation("io.micrometer:micrometer-registry-prometheus:1.11.5")
+    
+    // Test dependencies
+    testImplementation("io.ktor:ktor-server-test-host:$ktor_version")
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
 }
