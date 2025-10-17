@@ -46,8 +46,7 @@
       "description": "Total request rate across all services",
       "gridPos": { "x": 0, "y": 4, "w": 24, "h": 8 },
       "targets": [
-        { "expr": "rate(http_requests_total[5m])", "refId": "A", "legendFormat": "{{job}}" },
-        { "expr": "rate(ktor_http_server_requests_seconds_count[5m])", "refId": "B", "legendFormat": "{{job}}" }
+        { "expr": "sum(rate(http_requests_total[5m]) or rate(ktor_http_server_requests_seconds_count[5m])) by (job)", "refId": "A", "legendFormat": "{{job}}" }
       ],
       "fieldConfig": {
         "unit": "reqps",
@@ -89,8 +88,7 @@
       "description": "Server errors across all services",
       "gridPos": { "x": 12, "y": 12, "w": 12, "h": 8 },
       "targets": [
-        { "expr": "rate(http_requests_total{status_code=~\"5..\"}[5m])", "refId": "A", "legendFormat": "{{job}}" },
-        { "expr": "rate(ktor_http_server_requests_seconds_count{status=~\"5..\"}[5m])", "refId": "B", "legendFormat": "{{job}}" }
+        { "expr": "sum(rate(http_requests_total{status_code=~\"5..\"}[5m]) or rate(ktor_http_server_requests_seconds_count{status=~\"5..\"}[5m])) by (job)", "refId": "A", "legendFormat": "{{job}}" }
       ],
       "fieldConfig": {
         "unit": "reqps",
@@ -137,8 +135,7 @@
       "description": "Client errors across all services",
       "gridPos": { "x": 12, "y": 28, "w": 12, "h": 8 },
       "targets": [
-        { "expr": "rate(http_requests_total{status_code=~\"4..\"}[5m])", "refId": "A", "legendFormat": "{{job}}" },
-        { "expr": "rate(ktor_http_server_requests_seconds_count{status=~\"4..\"}[5m])", "refId": "B", "legendFormat": "{{job}}" }
+        { "expr": "sum(rate(http_requests_total{status_code=~\"4..\"}[5m]) or rate(ktor_http_server_requests_seconds_count{status=~\"4..\"}[5m])) by (job)", "refId": "A", "legendFormat": "{{job}}" }
       ],
       "fieldConfig": {
         "unit": "reqps",

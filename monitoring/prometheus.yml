@@ -26,9 +26,3 @@ scrape_configs:
     scrape_interval: 15s
     static_configs:
       - targets: ['api-gateway:4040']
-
-  - job_name: 'prolog-server'
-    metrics_path: /metrics
-    scrape_interval: 15s
-    static_configs:
-      - targets: ['prolog-server:8090']
