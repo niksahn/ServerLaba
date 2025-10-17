@@ -71,6 +71,8 @@ namespace AuthService.Controllers
                 return BadRequest("Invalid or expired refresh token");
             }
              var newTokens = GenerateTokens(token.User_id, principal.FindFirstValue(ClaimTypes.Role));
+             // Preserve the existing _id to avoid MongoDB error
+             newTokens.Id = token.Id;
             _tokens.ReplaceOne(t => t.User_id == token.User_id, newTokens);
 
             return Ok(new { newTokens.AccessToken, newTokens.RefreshToken });
