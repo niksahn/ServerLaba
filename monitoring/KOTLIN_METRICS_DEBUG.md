@@ -139,3 +139,4 @@ val requestTimer = Timer.builder("custom_http_request_duration_seconds")
 
 Но сначала попробуйте стандартные метрики Ktor + Micrometer.
 
+
