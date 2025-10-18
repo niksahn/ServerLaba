@@ -26,7 +26,7 @@ import java.util.*
 //    put("default.key.serde", "org.apache.kafka.common.serialization.Serdes\$StringSerde")
 //    put("default.value.serde", "org.apache.kafka.common.serialization.Serdes\$StringSerde")
 //}
-//
+
 val ProducerProps = Properties().apply {
     put("bootstrap.servers", "servers-kafka-1:9092")
     put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer")

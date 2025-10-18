@@ -3,7 +3,7 @@ val logback_version: String by project
 val koin_version = "3.5.6"
 val mongo = "5.1.4"
 val ktor_version = "3.0.0"
-
+val KGraphQLVersion = "0.35.0"
 plugins {
     kotlin("jvm") version "2.0.21"
     id("io.ktor.plugin") version "3.0.0"
@@ -55,4 +55,5 @@ dependencies {
     testImplementation("io.ktor:ktor-server-test-host:$ktor_version")
     testImplementation("org.jetbrains.kotlin:kotlin-test:$kotlin_version")
     testImplementation("io.mockk:mockk:1.12.0")
-}
+    implementation("de.stuebingerb:kgraphql:${KGraphQLVersion}")
+    implementation("de.stuebingerb:kgraphql-ktor:${KGraphQLVersion}")}
