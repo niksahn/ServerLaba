@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: microservices-lab
+data:
+  MONGO_URL: "mongodb://servers-mongodb-1:27017"
+  REDIS_HOST: "redis"
+  REDIS_PORT: "6379"
+  KAFKA_BROKER: "servers-kafka-1:9092"
+  ZOOKEEPER_CONNECT: "servers-zookeeper-1:2181"
+  ASPNETCORE_ENVIRONMENT: "Development"
+  PROMETHEUS_PORT: "9090"
+  GRAFANA_PORT: "3000"
+

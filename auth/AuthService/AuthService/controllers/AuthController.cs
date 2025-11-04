@@ -101,7 +101,7 @@ namespace AuthService.Controllers
 
             if(!request.Role.Any(x=>principal.IsInRole(x)))
             {
-               return Forbid("Wrong role");
+               return Unauthorized("Wrong role");
             }
             return Ok(new { userName });
         }
