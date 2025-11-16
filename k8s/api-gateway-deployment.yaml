@@ -28,6 +28,13 @@ spec:
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 4040
+        env:
+        - name: USER_SERVICE_URL
+          value: "http://nginx:80/user-service"
+        - name: APP_SERVICE_URL
+          value: "http://nginx:80/app-service"
+        - name: AUTH_SERVICE_URL
+          value: "http://nginx:80/auth-service"
         resources:
           requests:
             memory: "128Mi"

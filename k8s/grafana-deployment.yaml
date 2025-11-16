@@ -44,13 +44,27 @@ spec:
       labels:
         app: grafana
     spec:
+      securityContext:
+        fsGroup: 472
       initContainers:
+      - name: fix-permissions
+        image: busybox:1.35
+        securityContext:
+          runAsUser: 0
+        command: ['sh', '-c', 'chown -R 472:472 /var/lib/grafana && chmod -R 755 /var/lib/grafana']
+        volumeMounts:
+        - name: grafana-storage
+          mountPath: /var/lib/grafana
       - name: wait-for-prometheus
         image: busybox:1.35
         command: ['sh', '-c', 'until nc -z prometheus 9090; do echo waiting for prometheus; sleep 2; done;']
       containers:
       - name: grafana
         image: grafana/grafana:latest
+        securityContext:
+          runAsUser: 472
+          runAsGroup: 472
+          runAsNonRoot: true
         ports:
         - containerPort: 3000
         env:
@@ -67,6 +81,7 @@ spec:
           mountPath: /var/lib/grafana
         - name: grafana-datasources
           mountPath: /etc/grafana/provisioning/datasources
+          readOnly: true
         - name: grafana-dashboards-provisioning
           mountPath: /etc/grafana/provisioning/dashboards
           readOnly: true

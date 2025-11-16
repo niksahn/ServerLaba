@@ -32,6 +32,14 @@ spec:
       securityContext:
         fsGroup: 65534
       initContainers:
+      - name: fix-permissions
+        image: busybox:1.35
+        securityContext:
+          runAsUser: 0
+        command: ['sh', '-c', 'chown -R 65534:65534 /prometheus && chmod -R 755 /prometheus']
+        volumeMounts:
+        - name: prometheus-storage
+          mountPath: /prometheus
       - name: wait-for-authservice
         image: busybox:1.35
         command: ['sh', '-c', 'until nc -z servers-authservice-1 8010; do echo waiting for authservice; sleep 2; done;']
@@ -57,6 +65,7 @@ spec:
         - --storage.tsdb.path=/prometheus
         - --web.enable-lifecycle
         - --web.enable-admin-api
+        - --query.max-concurrency=20
         resources:
           requests:
             memory: "512Mi"

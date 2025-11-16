@@ -1,0 +1,20 @@
+NAME                                      READY   STATUS    RESTARTS        AGE     IP               NODE           NOMINATED NODE   READINESS GATES
+api-gateway-54df47b7b9-v8x7l              1/1     Running   0               7m38s   10.244.205.240   minikube-m02   <none>           <none>
+api-gateway-54df47b7b9-wpmdq              1/1     Running   0               6m27s   10.244.205.245   minikube-m02   <none>           <none>
+grafana-67f9f8cf5-8hmkc                   1/1     Running   3 (6m21s ago)   37m     10.244.120.102   minikube       <none>           <none>
+prolog-server-787859f678-88kdx            1/1     Running   0               6m26s   10.244.205.246   minikube-m02   <none>           <none>
+prolog-server-787859f678-z5tdn            1/1     Running   0               7m35s   10.244.205.241   minikube-m02   <none>           <none>
+prometheus-7557ddb5f7-cs8ws               1/1     Running   3 (6m21s ago)   37m     10.244.120.103   minikube       <none>           <none>
+redis-76b6c45bc6-cmhw8                    1/1     Running   1 (8m5s ago)    37m     10.244.120.101   minikube       <none>           <none>
+servers-app-1-669bcd4f7b-4s5tf            1/1     Running   0               6m38s   10.244.205.242   minikube-m02   <none>           <none>
+servers-app-1-669bcd4f7b-d5pjf            1/1     Running   0               7m47s   10.244.205.237   minikube-m02   <none>           <none>
+servers-app-1-669bcd4f7b-jkrtv            1/1     Running   0               5m30s   10.244.120.121   minikube       <none>           <none>
+servers-authservice-1-6558cf4b4f-f85gl    1/1     Running   0               7m44s   10.244.205.238   minikube-m02   <none>           <none>
+servers-authservice-1-6558cf4b4f-ncwsf    1/1     Running   0               6m34s   10.244.205.243   minikube-m02   <none>           <none>
+servers-authservice-1-6558cf4b4f-q2lsb    1/1     Running   0               5m24s   10.244.120.122   minikube       <none>           <none>
+servers-kafka-1-6dbc89f688-9l9j5          1/1     Running   1 (8m2s ago)    15m     10.244.120.118   minikube       <none>           <none>
+servers-mongodb-1-0                       1/1     Running   0               29m     10.244.120.110   minikube       <none>           <none>
+servers-user-service-1-7d988db869-94p8k   1/1     Running   0               7m41s   10.244.205.239   minikube-m02   <none>           <none>
+servers-user-service-1-7d988db869-bhrfg   1/1     Running   0               6m30s   10.244.205.244   minikube-m02   <none>           <none>
+servers-user-service-1-7d988db869-pjkqc   1/1     Running   0               5m23s   10.244.120.123   minikube       <none>           <none>
+servers-zookeeper-1-87896ffb8-vpxxr       1/1     Running   0               15m     10.244.120.115   minikube       <none>           <none>

@@ -1,0 +1,115 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config-weighted-round-robin
+  namespace: microservices-lab
+data:
+  nginx.conf: |
+    user nginx;
+    worker_processes auto;
+    error_log /var/log/nginx/error.log warn;
+    pid /var/run/nginx.pid;
+
+    events {
+        worker_connections 1024;
+    }
+
+    http {
+        include /etc/nginx/mime.types;
+        default_type application/octet-stream;
+
+        log_format main '$remote_addr - $remote_user [$time_local] "$request" '
+                        '$status $body_bytes_sent "$http_referer" '
+                        '"$http_user_agent" "$http_x_forwarded_for"';
+
+        access_log /var/log/nginx/access.log main;
+
+        sendfile on;
+        tcp_nopush on;
+        tcp_nodelay on;
+        keepalive_timeout 65;
+        types_hash_max_size 2048;
+
+        # Upstream для app-service - Weighted Round Robin
+        # Веса распределены неравномерно для имитации разных мощностей серверов
+        # v1 (средние ресурсы) - weight=3, v2 (низкие ресурсы) - weight=1, v3 (высокие ресурсы) - weight=5
+        upstream app-service {
+            server servers-app-1:8080 weight=3;
+            server servers-app-2:8080 weight=1;
+            server servers-app-3:8080 weight=5;
+        }
+
+        # Upstream для user-service - Weighted Round Robin
+        upstream user-service {
+            server servers-user-service-1:8070 weight=3;
+            server servers-user-service-2:8070 weight=1;
+            server servers-user-service-3:8070 weight=5;
+        }
+
+        # Upstream для auth-service - Weighted Round Robin
+        upstream auth-service {
+            server servers-authservice-1:8010 weight=3;
+            server servers-authservice-2:8010 weight=1;
+            server servers-authservice-3:8010 weight=5;
+        }
+
+        # Upstream для prolog-service - Weighted Round Robin
+        upstream prolog-service {
+            server prolog-server:8090 weight=2;
+        }
+
+        # Статус страница для мониторинга
+        server {
+            listen 8080;
+            location /nginx_status {
+                stub_status on;
+                access_log off;
+                allow 127.0.0.1;
+                allow 10.0.0.0/8;
+                deny all;
+            }
+        }
+
+        # Основной сервер для балансировки
+        server {
+            listen 80;
+            server_name _;
+
+            location /app-service {
+                rewrite ^/app-service(.*)$ $1 break;
+                proxy_pass http://app-service;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+            }
+
+            location /user-service {
+                rewrite ^/user-service(.*)$ $1 break;
+                proxy_pass http://user-service;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+            }
+
+            location /auth-service {
+                rewrite ^/auth-service(.*)$ $1 break;
+                proxy_pass http://auth-service;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+            }
+
+            location /prolog-service {
+                rewrite ^/prolog-service(.*)$ $1 break;
+                proxy_pass http://prolog-service;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+            }
+        }
+    }
+

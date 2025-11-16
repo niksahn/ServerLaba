@@ -31,7 +31,8 @@ class DeleteUserModel(BaseModel):
     token: str
 
 
-service = "http://servers-authservice-1:8010"
+import os
+service = os.getenv("AUTH_SERVICE_URL", "http://servers-authservice-1:8010")
 
 # service = "http://localhost:8010"
 userAccess = ["USER", "MODERATOR", "ADMIN"]

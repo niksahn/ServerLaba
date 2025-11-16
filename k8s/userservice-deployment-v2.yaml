@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: servers-user-service-2
+  namespace: microservices-lab
+  labels:
+    app: servers-user-service-1
+    version: v2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: servers-user-service-1
+      version: v2
+  template:
+    metadata:
+      labels:
+        app: servers-user-service-1
+        version: v2
+    spec:
+      initContainers:
+      - name: wait-for-mongodb
+        image: busybox:1.35
+        command: ['sh', '-c', 'until nc -z servers-mongodb-1 27017; do echo waiting for mongodb; sleep 2; done;']
+      containers:
+      - name: servers-user-service-2
+        image: servers-user-service:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8070
+        env:
+        - name: MONGO_URL
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: MONGO_URL
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+        livenessProbe:
+          tcpSocket:
+            port: 8070
+          initialDelaySeconds: 90
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          tcpSocket:
+            port: 8070
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+
+

@@ -4,7 +4,8 @@ from auth import userAccess, moderatorAccess, authorize_user, get_token
 from pydantic import BaseModel
 from reqHead import forward_request
 
-service = "http://servers-app-1:8080"
+import os
+service = os.getenv("APP_SERVICE_URL", "http://servers-app-1:8080")
 router = APIRouter()
 
 

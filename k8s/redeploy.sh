@@ -1,0 +1,11 @@
+kubectl rollout restart deployment servers-user-service-1 -n microservices-lab
+kubectl rollout restart deployment servers-app-1 -n microservices-lab
+kubectl rollout restart deployment servers-authservice-1 -n microservices-lab
+kubectl rollout restart deployment api-gateway -n microservices-lab
+kubectl rollout restart deployment prolog-server -n microservices-lab
+kubectl rollout restart deployment servers-mongodb-1 -n microservices-lab
+kubectl rollout restart deployment redis -n microservices-lab
+kubectl rollout restart deployment servers-kafka-1 -n microservices-lab
+kubectl rollout restart deployment servers-zookeeper-1 -n microservices-lab
+kubectl rollout restart deployment prometheus -n microservices-lab
+kubectl rollout restart deployment grafana -n microservices-lab
