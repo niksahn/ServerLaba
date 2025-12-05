@@ -1,61 +1,48 @@
-@startuml C4_Container
+@startuml C4 Container Diagram
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
 
 LAYOUT_WITH_LEGEND()
 
-title Диаграмма контейнеров - Микросервисная платформа
+title Диаграмма контейнеров - Сервис кино
 
-Person(user, "Пользователь", "Обычный пользователь системы")
-Person(admin, "Администратор", "Управляет системой")
-Person(moderator, "Модератор", "Модерирует контент")
+Person(user, "Пользователь", "Использует сервис для просмотра фильмов")
+Person(admin, "Администратор", "Управляет контентом и пользователями")
 
-System_Boundary(c1, "Микросервисная платформа") {
-    Container(api_gateway, "API Gateway", "Python/FastAPI", "Единая точка входа для всех клиентских запросов. Обеспечивает маршрутизацию, валидацию токенов, проксирование запросов к микросервисам")
+System_Boundary(cinema_system, "Сервис кино") {
+    Container(api_gateway, "API Gateway", "FastAPI, Python", "Единая точка входа для всех запросов")
+    Container(auth_service, "AuthService", ".NET Core, C#", "Сервис аутентификации и авторизации")
+    Container(user_service, "UserService", "Kotlin, Ktor", "Управление пользователями")
+    Container(app_service, "AppService", "Kotlin, Ktor", "Управление фильмами и рекомендациями")
+    Container(prolog_server, "Prolog Server", "SWI-Prolog", "Генерация рекомендаций на основе логики")
     
-    Container(nginx, "Nginx Load Balancer", "Nginx", "Балансировщик нагрузки между репликами микросервисов. Обеспечивает распределение запросов, health checks, мониторинг метрик")
-    
-    Container(auth_service, "Auth Service", "ASP.NET Core", "Сервис аутентификации и авторизации. Генерирует JWT токены, валидирует пользователей, управляет сессиями. Поддерживает REST API и GraphQL")
-    
-    Container(user_service, "User Service", "Kotlin/Ktor", "Сервис управления пользователями. Обрабатывает CRUD операции с пользователями, управляет профилями, интегрируется с Kafka для асинхронной обработки")
-    
-    Container(app_service, "App Service", "Kotlin", "Основной бизнес-логический сервис. Управляет фильмами, обрабатывает запросы на рекомендации, взаимодействует с Prolog сервисом")
-    
-    Container(prolog_service, "Prolog Service", "SWI-Prolog", "Сервис логических вычислений. Выполняет Prolog запросы для генерации рекомендаций, использует Redis для кэширования результатов")
+    ContainerDb(mongodb, "MongoDB", "MongoDB", "Хранит данные о фильмах, пользователях и авторизации")
+    ContainerDb(redis, "Redis", "Redis", "Кэширование и очереди сообщений")
+    ContainerDb(kafka, "Kafka", "Apache Kafka", "Очередь сообщений для асинхронной обработки")
+    ContainerDb(zookeeper, "Zookeeper", "Apache Zookeeper", "Координация Kafka")
 }
 
-SystemDb_Ext(mongodb, "MongoDB", "NoSQL база данных", "Хранит данные пользователей, токены аутентификации, информацию о фильмах")
-SystemDb_Ext(redis, "Redis", "In-memory хранилище", "Кэширование данных, хранение временных результатов Prolog вычислений")
-SystemDb_Ext(kafka, "Apache Kafka", "Message Broker", "Асинхронная обработка сообщений между сервисами, событийная архитектура")
-SystemDb_Ext(zookeeper, "Zookeeper", "Координатор", "Координация Kafka кластера")
+System_Ext(video_hosting, "Хостинг видео", "Внешний сервис для хранения видео")
 
-System_Ext(monitoring, "Prometheus/Grafana", "Система мониторинга", "Сбор метрик, визуализация производительности, алертинг")
+Rel(user, api_gateway, "Использует", "HTTPS")
+Rel(admin, api_gateway, "Использует", "HTTPS")
 
-Rel(user, api_gateway, "Отправляет запросы", "HTTPS")
-Rel(admin, api_gateway, "Управляет", "HTTPS")
-Rel(moderator, api_gateway, "Модерирует", "HTTPS")
+Rel(api_gateway, auth_service, "Проверяет авторизацию", "HTTP")
+Rel(api_gateway, user_service, "Запросы пользователей", "HTTP")
+Rel(api_gateway, app_service, "Запросы фильмов", "HTTP")
 
-Rel(api_gateway, nginx, "Проксирует запросы", "HTTP")
-Rel(nginx, auth_service, "Балансирует нагрузку", "HTTP")
-Rel(nginx, user_service, "Балансирует нагрузку", "HTTP")
-Rel(nginx, app_service, "Балансирует нагрузку", "HTTP")
-Rel(nginx, prolog_service, "Балансирует нагрузку", "HTTP")
+Rel(auth_service, mongodb, "Читает/Записывает", "MongoDB Protocol")
+Rel(user_service, mongodb, "Читает/Записывает", "MongoDB Protocol")
+Rel(app_service, mongodb, "Читает/Записывает", "MongoDB Protocol")
 
-Rel(auth_service, mongodb, "Читает/записывает токены", "MongoDB Protocol")
-Rel(auth_service, user_service, "Валидирует пользователей", "HTTP/REST")
+Rel(app_service, redis, "Кэширует данные", "Redis Protocol")
+Rel(prolog_server, redis, "Читает/Записывает рекомендации", "Redis Protocol")
 
-Rel(user_service, mongodb, "Читает/записывает пользователей", "MongoDB Protocol")
-Rel(user_service, kafka, "Отправляет/получает сообщения", "Kafka Protocol")
-
-Rel(app_service, mongodb, "Читает/записывает фильмы", "MongoDB Protocol")
-Rel(app_service, prolog_service, "Запрашивает рекомендации", "HTTP")
-
-Rel(prolog_service, redis, "Кэширует результаты", "Redis Protocol")
-
+Rel(app_service, kafka, "Отправляет сообщения", "Kafka Protocol")
+Rel(user_service, kafka, "Отправляет сообщения", "Kafka Protocol")
 Rel(kafka, zookeeper, "Координация", "Zookeeper Protocol")
 
-Rel(auth_service, monitoring, "Отправляет метрики", "Prometheus")
-Rel(user_service, monitoring, "Отправляет метрики", "Prometheus")
-Rel(app_service, monitoring, "Отправляет метрики", "Prometheus")
+Rel(app_service, prolog_server, "Запрашивает рекомендации", "HTTP")
+Rel(app_service, video_hosting, "Получает видео", "HTTPS")
 
 @enduml
 
