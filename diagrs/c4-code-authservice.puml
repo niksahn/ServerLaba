@@ -1,0 +1,248 @@
+@startuml C4_Code_AuthService
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+skinparam classAttributeIconSize 0
+skinparam backgroundColor #FEFEFE
+
+title UML Диаграмма классов - Auth Service
+
+package "AuthService.Controllers" {
+    class AuthController {
+        - ApiService api
+        - IConfiguration configuration
+        - IMongoCollection&lt;Token&gt; _tokens
+        - string _secretKey
+        - int AccessTokenDurationMinutes
+        - int RefreshTokenDurationMinutes
+        + Authenticate(LoginRequest) : IActionResult
+        + Logout(LogoutRequest) : IActionResult
+        + Refresh(RefreshRequest) : IActionResult
+        + Identify(IdentifyRequest) : IActionResult
+        - GenerateTokens(string, string) : Token
+        - GenerateAccessToken(string, string, int) : string
+        - GetPrincipalFromExpiredToken(string) : ClaimsPrincipal
+        - ValidateUser(string, string) : Task&lt;IdentifyResponse?&gt;
+    }
+    
+    class LoginRequest {
+        + string UserName
+        + string Password
+    }
+    
+    class LogoutRequest {
+        + string token
+    }
+    
+    class RefreshRequest {
+        + string RefreshToken
+    }
+    
+    class IdentifyRequest {
+        + string AccessToken
+        + List&lt;string&gt; Role
+    }
+    
+    class IdentifyResponse {
+        + string Id
+        + string Role
+    }
+    
+    class IdentifyExternalRequest {
+        + string Name
+        + string Password
+    }
+}
+
+package "AuthService.GraphQL.Mutations" {
+    class AuthMutations {
+        - IMongoCollection&lt;Token&gt; _tokens
+        - ApiService _apiService
+        - IConfiguration _configuration
+        - string _secretKey
+        - int AccessTokenDurationMinutes
+        - int RefreshTokenDurationMinutes
+        + Authenticate(LoginInput) : Task&lt;AuthPayloadType&gt;
+        + Refresh(RefreshTokenInput) : Task&lt;AuthPayloadType&gt;
+        + Logout(LogoutInput) : Task&lt;AuthPayloadType&gt;
+        - GenerateTokens(string, string) : Token
+        - GenerateAccessToken(string, string, int) : string
+        - GetPrincipalFromExpiredToken(string) : ClaimsPrincipal?
+        - ValidateUser(string, string) : Task&lt;IdentifyResponse?&gt;
+    }
+}
+
+package "AuthService.GraphQL.Queries" {
+    class AuthQueries {
+        - IMongoCollection&lt;Token&gt; _tokens
+        - string _secretKey
+        + Identify(IdentifyInput) : Task&lt;UserInfoType&gt;
+        - GetPrincipalFromExpiredToken(string) : ClaimsPrincipal?
+    }
+}
+
+package "AuthService.GraphQL.Inputs" {
+    class LoginInput {
+        + string UserName
+        + string Password
+    }
+    
+    class RefreshTokenInput {
+        + string RefreshToken
+    }
+    
+    class IdentifyInput {
+        + string AccessToken
+        + List&lt;string&gt; RequiredRoles
+    }
+    
+    class LogoutInput {
+        + string AccessToken
+    }
+}
+
+package "AuthService.GraphQL.Types" {
+    class AuthPayloadType {
+        + string AccessToken
+        + string RefreshToken
+        + string UserId
+        + string Role
+        + bool Success
+        + string? ErrorMessage
+    }
+    
+    class TokenType {
+        + string Id
+        + string UserId
+        + string AccessToken
+        + string RefreshToken
+        + FromModel(Token) : TokenType
+    }
+    
+    class UserInfoType {
+        + string UserId
+        + string Role
+        + bool IsValid
+        + string? ErrorMessage
+    }
+}
+
+package "AuthService.Models" {
+    class Token {
+        + ObjectId Id
+        + string User_id
+        + string AccessToken
+        + string RefreshToken
+    }
+}
+
+package "AuthService.Services" {
+    class ApiService {
+        - HttpClient _httpClient
+        + PostResourceAsync&lt;T, B&gt;(string, B) : Task&lt;T?&gt;
+    }
+}
+
+package "External Dependencies" {
+    interface IMongoClient {
+        + GetDatabase(string) : IMongoDatabase
+    }
+    
+    interface IMongoCollection&lt;T&gt; {
+        + Find(FilterDefinition&lt;T&gt;) : IFindFluent&lt;T, T&gt;
+        + ReplaceOne(FilterDefinition&lt;T&gt;, T, ReplaceOptions) : ReplaceOneResult
+        + DeleteOne(FilterDefinition&lt;T&gt;) : DeleteResult
+    }
+    
+    interface IConfiguration {
+        + GetConnectionString(string) : string
+    }
+    
+    class JwtSecurityTokenHandler {
+        + CreateToken(SecurityTokenDescriptor) : SecurityToken
+        + WriteToken(SecurityToken) : string
+        + ValidateToken(string, TokenValidationParameters, out SecurityToken) : ClaimsPrincipal
+    }
+    
+    class ClaimsPrincipal {
+        + FindFirst(string) : Claim?
+        + FindFirstValue(string) : string?
+        + IsInRole(string) : bool
+    }
+}
+
+' Relationships
+AuthController --> ApiService : uses
+AuthController --> IMongoCollection<Token> : uses
+AuthController --> IConfiguration : uses
+AuthController --> Token : creates
+AuthController --> LoginRequest : uses
+AuthController --> LogoutRequest : uses
+AuthController --> RefreshRequest : uses
+AuthController --> IdentifyRequest : uses
+AuthController --> IdentifyResponse : returns
+AuthController --> IdentifyExternalRequest : uses
+AuthController --> JwtSecurityTokenHandler : uses
+AuthController --> ClaimsPrincipal : creates
+
+AuthMutations --> ApiService : uses
+AuthMutations --> IMongoCollection<Token> : uses
+AuthMutations --> IConfiguration : uses
+AuthMutations --> Token : creates
+AuthMutations --> LoginInput : uses
+AuthMutations --> RefreshTokenInput : uses
+AuthMutations --> LogoutInput : uses
+AuthMutations --> AuthPayloadType : returns
+AuthMutations --> IdentifyResponse : uses
+AuthMutations --> JwtSecurityTokenHandler : uses
+AuthMutations --> ClaimsPrincipal : creates
+
+AuthQueries --> IMongoCollection<Token> : uses
+AuthQueries --> IdentifyInput : uses
+AuthQueries --> UserInfoType : returns
+AuthQueries --> JwtSecurityTokenHandler : uses
+AuthQueries --> ClaimsPrincipal : creates
+
+TokenType --> Token : converts from
+
+ApiService --> HttpClient : uses
+
+AuthController ..> IdentifyExternalRequest : creates
+AuthMutations ..> IdentifyExternalRequest : creates
+
+note right of AuthController
+    **Назначение:** REST API контроллер для аутентификации
+    **Технологии:** ASP.NET Core, MongoDB Driver
+    **Реализация:** Обрабатывает HTTP запросы на аутентификацию,
+    генерацию токенов, обновление и валидацию токенов
+end note
+
+note right of AuthMutations
+    **Назначение:** GraphQL мутации для аутентификации
+    **Технологии:** HotChocolate GraphQL, MongoDB Driver
+    **Реализация:** Предоставляет GraphQL мутации для аутентификации,
+    обновления токенов и выхода из системы
+end note
+
+note right of AuthQueries
+    **Назначение:** GraphQL запросы для идентификации
+    **Технологии:** HotChocolate GraphQL, MongoDB Driver
+    **Реализация:** Предоставляет GraphQL запросы для валидации
+    токенов и проверки ролей пользователей
+end note
+
+note right of ApiService
+    **Назначение:** HTTP клиент для взаимодействия с User Service
+    **Технологии:** .NET HttpClient
+    **Реализация:** Отправляет HTTP запросы для валидации
+    пользователей при аутентификации
+end note
+
+note right of Token
+    **Назначение:** Модель данных для хранения токенов
+    **Технологии:** MongoDB.Bson
+    **Реализация:** Документ MongoDB, хранящий access и refresh токены
+    для каждого пользователя
+end note
+
+@enduml
+

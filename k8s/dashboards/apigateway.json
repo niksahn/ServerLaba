@@ -1,0 +1,80 @@
+{
+  "title": "API Gateway Overview",
+  "uid": "apigateway-overview",
+  "timezone": "browser",
+  "schemaVersion": 36,
+  "version": 1,
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Uptime (process)",
+      "targets": [
+        {
+          "expr": "time() - process_start_time_seconds{job=\"api-gateway\"}",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "last"
+          ]
+        },
+        "orientation": "horizontal"
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "HTTP Requests Rate - среднее количество запросов в секунду за последние 5 минут. ",
+      "targets": [
+        {
+          "expr": "sum by (method, endpoint, status_code) (rate(http_requests_total{job=\"api-gateway\"}[5m]))",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "HTTP Requests - средняя длительность запросов",
+      "targets": [
+        {
+          "expr": "rate(http_request_duration_seconds_sum{job=\"api-gateway\"}[5m]) / rate(http_request_duration_seconds_count{job=\"api-gateway\"}[5m])",
+          "legendFormat": "{{endpoint}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "5xx Errors Rate - число 5xx в 5м",
+      "targets": [
+        {
+          "expr": "increase(http_requests_total{job=\"api-gateway\",status_code=~\"5..\"}[5m])",
+          "refId": "A",
+          "legendFormat": "{{endpoint}}"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "4xx Errors Rate - число 4xx в 5м",
+      "targets": [
+        {
+          "expr": "increase(http_requests_total{job=\"api-gateway\",status_code=~\"4..\"}[5m])",
+          "refId": "A",
+          "legendFormat": "{{endpoint}}"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Active Connections - число запросов одноременно выполняемых",
+      "targets": [
+        {
+          "expr": "http_requests_in_flight{job=\"api-gateway\"}",
+          "refId": "A"
+        }
+      ]
+    }
+  ]
+}

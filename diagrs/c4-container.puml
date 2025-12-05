@@ -1,0 +1,61 @@
+@startuml C4_Container
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+LAYOUT_WITH_LEGEND()
+
+title Диаграмма контейнеров - Микросервисная платформа
+
+Person(user, "Пользователь", "Обычный пользователь системы")
+Person(admin, "Администратор", "Управляет системой")
+Person(moderator, "Модератор", "Модерирует контент")
+
+System_Boundary(c1, "Микросервисная платформа") {
+    Container(api_gateway, "API Gateway", "Python/FastAPI", "Единая точка входа для всех клиентских запросов. Обеспечивает маршрутизацию, валидацию токенов, проксирование запросов к микросервисам")
+    
+    Container(nginx, "Nginx Load Balancer", "Nginx", "Балансировщик нагрузки между репликами микросервисов. Обеспечивает распределение запросов, health checks, мониторинг метрик")
+    
+    Container(auth_service, "Auth Service", "ASP.NET Core", "Сервис аутентификации и авторизации. Генерирует JWT токены, валидирует пользователей, управляет сессиями. Поддерживает REST API и GraphQL")
+    
+    Container(user_service, "User Service", "Kotlin/Ktor", "Сервис управления пользователями. Обрабатывает CRUD операции с пользователями, управляет профилями, интегрируется с Kafka для асинхронной обработки")
+    
+    Container(app_service, "App Service", "Kotlin", "Основной бизнес-логический сервис. Управляет фильмами, обрабатывает запросы на рекомендации, взаимодействует с Prolog сервисом")
+    
+    Container(prolog_service, "Prolog Service", "SWI-Prolog", "Сервис логических вычислений. Выполняет Prolog запросы для генерации рекомендаций, использует Redis для кэширования результатов")
+}
+
+SystemDb_Ext(mongodb, "MongoDB", "NoSQL база данных", "Хранит данные пользователей, токены аутентификации, информацию о фильмах")
+SystemDb_Ext(redis, "Redis", "In-memory хранилище", "Кэширование данных, хранение временных результатов Prolog вычислений")
+SystemDb_Ext(kafka, "Apache Kafka", "Message Broker", "Асинхронная обработка сообщений между сервисами, событийная архитектура")
+SystemDb_Ext(zookeeper, "Zookeeper", "Координатор", "Координация Kafka кластера")
+
+System_Ext(monitoring, "Prometheus/Grafana", "Система мониторинга", "Сбор метрик, визуализация производительности, алертинг")
+
+Rel(user, api_gateway, "Отправляет запросы", "HTTPS")
+Rel(admin, api_gateway, "Управляет", "HTTPS")
+Rel(moderator, api_gateway, "Модерирует", "HTTPS")
+
+Rel(api_gateway, nginx, "Проксирует запросы", "HTTP")
+Rel(nginx, auth_service, "Балансирует нагрузку", "HTTP")
+Rel(nginx, user_service, "Балансирует нагрузку", "HTTP")
+Rel(nginx, app_service, "Балансирует нагрузку", "HTTP")
+Rel(nginx, prolog_service, "Балансирует нагрузку", "HTTP")
+
+Rel(auth_service, mongodb, "Читает/записывает токены", "MongoDB Protocol")
+Rel(auth_service, user_service, "Валидирует пользователей", "HTTP/REST")
+
+Rel(user_service, mongodb, "Читает/записывает пользователей", "MongoDB Protocol")
+Rel(user_service, kafka, "Отправляет/получает сообщения", "Kafka Protocol")
+
+Rel(app_service, mongodb, "Читает/записывает фильмы", "MongoDB Protocol")
+Rel(app_service, prolog_service, "Запрашивает рекомендации", "HTTP")
+
+Rel(prolog_service, redis, "Кэширует результаты", "Redis Protocol")
+
+Rel(kafka, zookeeper, "Координация", "Zookeeper Protocol")
+
+Rel(auth_service, monitoring, "Отправляет метрики", "Prometheus")
+Rel(user_service, monitoring, "Отправляет метрики", "Prometheus")
+Rel(app_service, monitoring, "Отправляет метрики", "Prometheus")
+
+@enduml
+

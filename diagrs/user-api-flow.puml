@@ -1,0 +1,174 @@
+@startuml user-api-flow
+!define RECTANGLE class
+
+skinparam backgroundColor #FEFEFE
+skinparam roundcorner 10
+skinparam shadowing false
+
+skinparam sequence {
+    ArrowColor #2C3E50
+    ActorBorderColor #3498DB
+    ActorBackgroundColor #EBF5FB
+    
+    ParticipantBorderColor #2C3E50
+    ParticipantBackgroundColor #ECF0F1
+    
+    LifeLineBorderColor #95A5A6
+    LifeLineBackgroundColor #BDC3C7
+}
+
+actor "Пользователь" as User
+participant "API Gateway\n(tipaGayTWay)" as Gateway
+participant "Nginx\n(Load Balancer)" as Nginx
+collections "Auth Service\n(3 реплики)" as AuthService
+collections "User Service\n(3 реплики)" as UserService
+collections "App Service\n(3 реплики)" as AppService
+collections "Prolog Service\n(1 реплика)" as PrologService
+database "PostgreSQL" as DB
+
+== Аутентификация пользователя ==
+User -> Gateway: POST /api/auth/login\n{username, password}
+activate Gateway
+note right of Gateway
+  API Gateway:
+  - Маршрутизация запросов
+  - Валидация входных данных
+  - Логирование
+end note
+
+Gateway -> Nginx: /auth-service/login
+activate Nginx
+note right of Nginx
+  Nginx Load Balancer:
+  - Round Robin балансировка
+  - Health checks
+  - Мониторинг метрик
+  - 3 upstream серверов:
+    * servers-authservice-1:8010
+    * servers-authservice-2:8010
+    * servers-authservice-3:8010
+end note
+
+Nginx -> AuthService: Балансировка на одну из реплик
+activate AuthService
+
+AuthService -> DB: SELECT * FROM users\nWHERE username = ?
+activate DB
+DB --> AuthService: User data + password hash
+deactivate DB
+
+AuthService -> AuthService: Проверка пароля\nГенерация JWT токена
+
+AuthService --> Nginx: HTTP 200 OK\n{token, user_id, expires_in}
+deactivate AuthService
+
+Nginx --> Gateway: Response с токеном
+deactivate Nginx
+
+Gateway --> User: HTTP 200 OK\n{access_token, refresh_token}
+deactivate Gateway
+
+== Запрос к User Service ==
+User -> Gateway: GET /api/users/profile\nAuthorization: Bearer <token>
+activate Gateway
+
+Gateway -> Gateway: Валидация JWT токена
+
+Gateway -> Nginx: /user-service/profile
+activate Nginx
+note right of Nginx
+  User Service upstream:
+  - servers-user-service-1:8070
+  - servers-user-service-2:8070
+  - servers-user-service-3:8070
+end note
+
+Nginx -> UserService: Балансировка на одну из реплик
+activate UserService
+
+UserService -> DB: SELECT * FROM user_profiles\nWHERE user_id = ?
+activate DB
+DB --> UserService: Profile data
+deactivate DB
+
+UserService --> Nginx: HTTP 200 OK\n{profile_data}
+deactivate UserService
+
+Nginx --> Gateway: Response
+deactivate Nginx
+
+Gateway --> User: HTTP 200 OK\n{user_profile}
+deactivate Gateway
+
+== Запрос к App Service ==
+User -> Gateway: POST /api/app/process\nAuthorization: Bearer <token>
+activate Gateway
+
+Gateway -> Nginx: /app-service/process
+activate Nginx
+note right of Nginx
+  App Service upstream:
+  - servers-app-1:8080
+  - servers-app-2:8080
+  - servers-app-3:8080
+end note
+
+Nginx -> AppService: Балансировка на одну из реплик
+activate AppService
+
+AppService -> DB: INSERT/UPDATE операции
+activate DB
+DB --> AppService: Result
+deactivate DB
+
+AppService --> Nginx: HTTP 200 OK\n{result}
+deactivate AppService
+
+Nginx --> Gateway: Response
+deactivate Nginx
+
+Gateway --> User: HTTP 200 OK\n{data}
+deactivate Gateway
+
+== Запрос к Prolog Service ==
+User -> Gateway: POST /api/prolog/query\nAuthorization: Bearer <token>
+activate Gateway
+
+Gateway -> Nginx: /prolog-service/query
+activate Nginx
+note right of Nginx
+  Prolog Service upstream:
+  - prolog-server:8090
+  (1 реплика)
+end note
+
+Nginx -> PrologService: Запрос к Prolog
+activate PrologService
+
+PrologService -> PrologService: Выполнение Prolog запроса
+
+PrologService --> Nginx: HTTP 200 OK\n{prolog_result}
+deactivate PrologService
+
+Nginx --> Gateway: Response
+deactivate Nginx
+
+Gateway --> User: HTTP 200 OK\n{query_result}
+deactivate Gateway
+
+== Обработка ошибок ==
+User -> Gateway: GET /api/users/data\n(неверный токен)
+activate Gateway
+
+Gateway -> Gateway: Валидация токена
+note right of Gateway
+  Ошибка валидации:
+  - Токен истек
+  - Неверная подпись
+  - Токен отсутствует
+end note
+
+Gateway --> User: HTTP 401 Unauthorized\n{error: "Invalid or expired token"}
+deactivate Gateway
+
+@enduml

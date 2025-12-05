@@ -1,0 +1,96 @@
+@startuml C4_Component
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+LAYOUT_WITH_LEGEND()
+
+title Диаграмма компонентов - Детализация контейнеров системы
+
+Person(user, "Пользователь", "Обычный пользователь")
+
+System_Boundary(api_gateway_boundary, "API Gateway") {
+    Component(auth_router, "Auth Router", "FastAPI Router", "Маршрутизация запросов аутентификации (login, logout, refresh, identify)")
+    Component(users_router, "Users Router", "FastAPI Router", "Маршрутизация запросов управления пользователями (CRUD операции)")
+    Component(films_router, "Films Router", "FastAPI Router", "Маршрутизация запросов работы с фильмами и рекомендациями")
+    Component(auth_middleware, "Auth Middleware", "FastAPI Dependency", "Проверка JWT токенов, валидация ролей пользователей, авторизация доступа")
+    Component(forward_service, "Forward Service", "Python requests", "Проксирование HTTP запросов к внутренним сервисам через Nginx")
+}
+
+System_Boundary(auth_service_boundary, "Auth Service") {
+    Component(auth_controller, "AuthController", "ASP.NET Core Controller", "REST API контроллер для аутентификации. Обрабатывает login, logout, refresh, identify запросы")
+    Component(auth_mutations, "AuthMutations", "HotChocolate GraphQL", "GraphQL мутации для аутентификации (authenticate, refresh, logout)")
+    Component(auth_queries, "AuthQueries", "HotChocolate GraphQL", "GraphQL запросы для идентификации пользователей (identify)")
+    Component(api_service, "ApiService", "HttpClient", "HTTP клиент для взаимодействия с User Service. Валидация пользователей при аутентификации")
+    Component(token_service, "Token Service", "JWT Handler", "Генерация и валидация JWT токенов (access и refresh токены), работа с Claims")
+    Component(mongo_repository, "MongoDB Repository", "MongoDB Driver", "Хранение и управление токенами в MongoDB коллекции Tokens")
+}
+
+System_Boundary(user_service_boundary, "User Service") {
+    Component(user_routing, "UserRouting", "Ktor Routing", "Маршрутизация HTTP запросов к контроллерам (POST /user, GET /users, PATCH /user и т.д.)")
+    Component(user_controller, "UserController", "Kotlin Controller", "Обработка бизнес-логики пользователей: создание, обновление, удаление, получение пользователей")
+    Component(user_repository, "UserDataRepository", "Kotlin Repository", "Доступ к данным пользователей в MongoDB, реализация паттерна Repository")
+    Component(kafka_client, "KafkaMessageClient", "Kafka Client", "Отправка и получение асинхронных сообщений через Kafka для интеграции с другими сервисами")
+    Component(ktor_client, "KtorNetworkClient", "Ktor HTTP Client", "HTTP клиент для взаимодействия с внешними сервисами")
+}
+
+System_Boundary(app_service_boundary, "App Service") {
+    Component(app_routing, "App Routing", "Ktor Routing", "Маршрутизация запросов работы с фильмами и рекомендациями")
+    Component(film_controller, "Film Controller", "Kotlin Controller", "Управление фильмами: CRUD операции, обработка запросов на рекомендации")
+    Component(recommendation_service, "Recommendation Service", "Kotlin Service", "Генерация рекомендаций фильмов на основе пользовательских данных")
+}
+
+System_Boundary(prolog_service_boundary, "Prolog Service") {
+    Component(prolog_server, "Prolog Server", "SWI-Prolog HTTP", "HTTP сервер для выполнения Prolog запросов, обработка логических правил рекомендаций")
+    Component(redis_cache, "Redis Cache", "Redis Client", "Кэширование результатов Prolog вычислений для повышения производительности")
+}
+
+SystemDb(mongodb, "MongoDB", "NoSQL Database")
+SystemDb(redis, "Redis", "Cache")
+SystemDb(kafka, "Kafka", "Message Broker")
+
+Rel(user, auth_router, "POST /api/auth", "HTTPS")
+Rel(user, users_router, "GET /api/users", "HTTPS")
+Rel(user, films_router, "GET /api/films", "HTTPS")
+
+Rel(auth_router, auth_middleware, "Проверяет токен", "Internal")
+Rel(users_router, auth_middleware, "Проверяет токен", "Internal")
+Rel(films_router, auth_middleware, "Проверяет токен", "Internal")
+
+Rel(auth_middleware, forward_service, "Проксирует запрос", "Internal")
+Rel(auth_router, forward_service, "Проксирует запрос", "Internal")
+Rel(users_router, forward_service, "Проксирует запрос", "Internal")
+Rel(films_router, forward_service, "Проксирует запрос", "Internal")
+
+Rel(forward_service, auth_controller, "HTTP через Nginx", "HTTP")
+Rel(forward_service, user_routing, "HTTP через Nginx", "HTTP")
+Rel(forward_service, app_routing, "HTTP через Nginx", "HTTP")
+
+Rel(auth_controller, token_service, "Генерирует токены", "Internal")
+Rel(auth_controller, api_service, "Валидирует пользователя", "HTTP")
+Rel(auth_controller, mongo_repository, "Сохраняет токены", "MongoDB Driver")
+
+Rel(auth_mutations, token_service, "Генерирует токены", "Internal")
+Rel(auth_mutations, api_service, "Валидирует пользователя", "HTTP")
+Rel(auth_mutations, mongo_repository, "Сохраняет токены", "MongoDB Driver")
+
+Rel(auth_queries, token_service, "Валидирует токены", "Internal")
+Rel(auth_queries, mongo_repository, "Читает токены", "MongoDB Driver")
+
+Rel(api_service, user_controller, "POST /users/identify", "HTTP")
+
+Rel(user_routing, user_controller, "Обрабатывает запрос", "Internal")
+Rel(user_controller, user_repository, "Работает с данными", "Internal")
+Rel(user_controller, kafka_client, "Отправляет события", "Internal")
+
+Rel(user_repository, mongodb, "CRUD операции", "MongoDB Protocol")
+Rel(kafka_client, kafka, "Отправляет сообщения", "Kafka Protocol")
+
+Rel(app_routing, film_controller, "Обрабатывает запрос", "Internal")
+Rel(film_controller, recommendation_service, "Генерирует рекомендации", "Internal")
+Rel(recommendation_service, prolog_server, "Выполняет Prolog запрос", "HTTP")
+Rel(prolog_server, redis_cache, "Кэширует результаты", "Redis Protocol")
+Rel(redis_cache, redis, "Читает/записывает", "Redis Protocol")
+
+Rel(mongo_repository, mongodb, "Читает/записывает", "MongoDB Protocol")
+
+@enduml
+

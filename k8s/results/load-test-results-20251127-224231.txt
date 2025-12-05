@@ -1,0 +1,19 @@
+Р РµР·СѓР»СЊС‚Р°С‚С‹ СЃСЂР°РІРЅРµРЅРёСЏ Р°Р»РіРѕСЂРёС‚РјРѕРІ Р±Р°Р»Р°РЅСЃРёСЂРѕРІРєРё
+Р”Р°С‚Р°: Thu Nov 27 22:42:31 RTZ 2025
+API Gateway: http://localhost:4040
+Р”Р»РёС‚РµР»СЊРЅРѕСЃС‚СЊ С‚РµСЃС‚Р°: 30 СЃРµРєСѓРЅРґ
+РџРѕР»СЊР·РѕРІР°С‚РµР»РµР№: 5
+==========================================
+
+Ошибка при авторизации: HTTPConnectionPool(host='localhost', port=4040): Max retries exceeded with url: /auth (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001B3750DAED0>: Failed to establish a new connection: [WinError 10061] Подключение не установлено, т.к. конечный компьютер отверг запрос на подключение'))
+ОШИБКА: Не удалось получить токен авторизации
+РџСЂРµРґСѓРїСЂРµР¶РґРµРЅРёРµ: РѕС€РёР±РєР° РїСЂРё РІС‹РїРѕР»РЅРµРЅРёРё РЅР°РіСЂСѓР·РѕС‡РЅРѕРіРѕ С‚РµСЃС‚Р° РґР»СЏ round-robin
+
+----------------------------------------
+
+Ошибка при авторизации: HTTPConnectionPool(host='localhost', port=4040): Max retries exceeded with url: /auth (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000002485F6CED10>: Failed to establish a new connection: [WinError 10061] Подключение не установлено, т.к. конечный компьютер отверг запрос на подключение'))
+ОШИБКА: Не удалось получить токен авторизации
+РџСЂРµРґСѓРїСЂРµР¶РґРµРЅРёРµ: РѕС€РёР±РєР° РїСЂРё РІС‹РїРѕР»РЅРµРЅРёРё РЅР°РіСЂСѓР·РѕС‡РЅРѕРіРѕ С‚РµСЃС‚Р° РґР»СЏ weighted-round-robin
+
+----------------------------------------
+

@@ -1,0 +1,65 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: telegraf-nginx-config
+  namespace: microservices-lab
+data:
+  telegraf.conf: |
+    [agent]
+      interval = "10s"
+      round_interval = true
+      metric_batch_size = 1000
+      metric_buffer_limit = 10000
+      collection_jitter = "0s"
+      flush_interval = "10s"
+      flush_jitter = "0s"
+      precision = ""
+      hostname = ""
+      omit_hostname = false
+
+    # Сбор метрик из логов Nginx
+    [[inputs.tail]]
+      files = ["/var/log/nginx/access.log"]
+      from_beginning = false
+      watch_method = "inotify"
+      data_format = "grok"
+      
+      grok_patterns = [
+        "%{IPORHOST:remote_addr} - %{USER:remote_user} \\[%{HTTPDATE:time_local}\\] \"%{DATA:request}\" %{NUMBER:resp_code} %{NUMBER:resp_bytes} \"%{DATA:referrer}\" \"%{DATA:agent}\" \"%{DATA:forwarded_for}\" upstream_addr=\"%{DATA:upstream_addr}\" upstream_status=\"%{DATA:upstream_status}\" request_time=%{NUMBER:request_time:float} upstream_response_time=%{DATA:upstream_response_time}"
+      ]
+      
+      grok_custom_patterns = '''
+        IPORHOST (?:%{IP}|%{HOSTNAME})
+      '''
+      
+      [inputs.tail.tags]
+        job = "nginx"
+        instance = "nginx:80"
+
+    # Преобразование полей в метрики
+    [[processors.converter]]
+      [processors.converter.fields]
+        integer = ["resp_code", "resp_bytes"]
+        float = ["request_time"]
+
+    # Переименование measurement для совместимости с дашбордом
+    [[processors.rename]]
+      [[processors.rename.replace]]
+        measurement = "tail"
+        dest = "nginxlog"
+
+    # Извлечение verb и path из request для совместимости с дашбордом
+    [[processors.regex]]
+      [[processors.regex.tags]]
+        key = "request"
+        pattern = '^(\\w+)\\s+(\\S+).*$'
+        replacement = '${1} ${2}'
+
+    # Экспорт в Prometheus
+    [[outputs.prometheus_client]]
+      listen = ":9273"
+      path = "/metrics"
+      expiration_interval = "60s"
+      collectors_exclude = ["gocollector", "process"]
+      metric_version = 2
+

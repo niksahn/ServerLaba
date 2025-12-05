@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: telegraf-nginx
+  namespace: microservices-lab
+  labels:
+    app: telegraf-nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: telegraf-nginx
+  template:
+    metadata:
+      labels:
+        app: telegraf-nginx
+    spec:
+      containers:
+      - name: telegraf
+        image: telegraf:1.28-alpine
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 9273
+          name: metrics
+        volumeMounts:
+        - name: telegraf-config
+          mountPath: /etc/telegraf
+        - name: nginx-logs
+          mountPath: /var/log/nginx
+          readOnly: true
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+        livenessProbe:
+          httpGet:
+            path: /metrics
+            port: 9273
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /metrics
+            port: 9273
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      volumes:
+      - name: telegraf-config
+        configMap:
+          name: telegraf-nginx-config
+      - name: nginx-logs
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: telegraf-nginx
+  namespace: microservices-lab
+  labels:
+    app: telegraf-nginx
+spec:
+  selector:
+    app: telegraf-nginx
+  ports:
+  - port: 9273
+    targetPort: 9273
+    name: metrics
+  type: ClusterIP
+
+

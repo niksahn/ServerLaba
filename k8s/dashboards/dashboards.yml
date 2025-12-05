@@ -1,0 +1,17 @@
+apiVersion: 1
+providers:
+  - name: 'Default Dashboards'
+    orgId: 1
+    folder: ''
+    type: file
+    disableDeletion: false
+    allowUiUpdates: true
+    updateIntervalSeconds: 30
+    options:
+      path: /var/lib/grafana/dashboards
+      # All dashboards are mounted from ConfigMap (no hostPath needed)
+
+
+
+
+

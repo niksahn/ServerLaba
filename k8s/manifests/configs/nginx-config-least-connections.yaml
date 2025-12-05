@@ -1,0 +1,126 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config-least-connections
+  namespace: microservices-lab
+data:
+  nginx.conf: |
+    user nginx;
+    worker_processes auto;
+    error_log /var/log/nginx/error.log warn;
+    pid /var/run/nginx.pid;
+
+    events {
+        worker_connections 1024;
+    }
+
+    http {
+        include /etc/nginx/mime.types;
+        default_type application/octet-stream;
+
+        log_format main '$remote_addr - $remote_user [$time_local] "$request" '
+                        '$status $body_bytes_sent "$http_referer" '
+                        '"$http_user_agent" "$http_x_forwarded_for"';
+
+        access_log /var/log/nginx/access.log main;
+
+        sendfile on;
+        tcp_nopush on;
+        tcp_nodelay on;
+        keepalive_timeout 65;
+        types_hash_max_size 2048;
+
+        # Upstream для app-service - Least Connections
+        upstream app-service {
+            least_conn;
+            server servers-app-1:8080;
+            server servers-app-2:8080;
+            server servers-app-3:8080;
+        }
+
+        # Upstream для user-service - Least Connections
+        upstream user-service {
+            least_conn;
+            server servers-user-service-1:8070;
+            server servers-user-service-2:8070;
+            server servers-user-service-3:8070;
+        }
+
+        # Upstream для auth-service - Least Connections
+        upstream auth-service {
+            least_conn;
+            server servers-authservice-1:8010;
+            server servers-authservice-2:8010;
+            server servers-authservice-3:8010;
+        }
+
+        # Upstream для prolog-service - Least Connections
+        upstream prolog-service {
+            least_conn;
+            server prolog-server:8090;
+        }
+
+        # Статус страница для мониторинга
+        server {
+            listen 8080;
+            # Health check endpoint для Kubernetes probes
+            location /health {
+                access_log off;
+                return 200 "healthy\n";
+                add_header Content-Type text/plain;
+            }
+            # Stub status для мониторинга (с ограниченным доступом)
+            location /nginx_status {
+                stub_status on;
+                access_log off;
+                allow 127.0.0.1;
+                allow 10.0.0.0/8;
+                allow 172.16.0.0/12;
+                allow 192.168.0.0/16;
+                deny all;
+            }
+        }
+
+        # Основной сервер для балансировки
+        server {
+            listen 80;
+            server_name _;
+
+            location /app-service {
+                rewrite ^/app-service(.*)$ $1 break;
+                proxy_pass http://app-service;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+            }
+
+            location /user-service {
+                rewrite ^/user-service(.*)$ $1 break;
+                proxy_pass http://user-service;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+            }
+
+            location /auth-service {
+                rewrite ^/auth-service(.*)$ $1 break;
+                proxy_pass http://auth-service;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+            }
+
+            location /prolog-service {
+                rewrite ^/prolog-service(.*)$ $1 break;
+                proxy_pass http://prolog-service;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+            }
+        }
+    }
+
