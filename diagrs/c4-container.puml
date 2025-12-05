@@ -1,48 +1,31 @@
-@startuml C4 Container Diagram
+@startuml c4-container
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
 
 LAYOUT_WITH_LEGEND()
 
-title Диаграмма контейнеров - Сервис кино
+title Диаграмма контейнеров (C4 Container) - Сервис кино
 
-Person(user, "Пользователь", "Использует сервис для просмотра фильмов")
-Person(admin, "Администратор", "Управляет контентом и пользователями")
+Person(user, "Пользователь", "Обычный пользователь системы")
+Person(admin, "Администратор", "Администратор системы")
+Person(moderator, "Модератор", "Пользоветль с правами модератора")
 
-System_Boundary(cinema_system, "Сервис кино") {
-    Container(api_gateway, "API Gateway", "FastAPI, Python", "Единая точка входа для всех запросов")
-    Container(auth_service, "AuthService", ".NET Core, C#", "Сервис аутентификации и авторизации")
-    Container(user_service, "UserService", "Kotlin, Ktor", "Управление пользователями")
-    Container(app_service, "AppService", "Kotlin, Ktor", "Управление фильмами и рекомендациями")
-    Container(prolog_server, "Prolog Server", "SWI-Prolog", "Генерация рекомендаций на основе логики")
-    
-    ContainerDb(mongodb, "MongoDB", "MongoDB", "Хранит данные о фильмах, пользователях и авторизации")
-    ContainerDb(redis, "Redis", "Redis", "Кэширование и очереди сообщений")
-    ContainerDb(kafka, "Kafka", "Apache Kafka", "Очередь сообщений для асинхронной обработки")
-    ContainerDb(zookeeper, "Zookeeper", "Apache Zookeeper", "Координация Kafka")
+System_Boundary(movie_system, "Сервис кино") {
+    Container(backend, "Backend", "Микросервисная архитектура", "Набор микросервисов для обработки бизнес-логики")
+    ContainerDb(database, "База данных", "MongoDB", "Хранит информацию о фильмах, пользователях, сессиях")
+    ContainerDb(redis, "Кэш", "Redis", "Кэширование данных, сессии пользователей")
+    Container(kafka, "Брокер сообщений", "Kafka + Zookeeper", "Асинхронная обработка событий между микросервисами")
 }
 
-System_Ext(video_hosting, "Хостинг видео", "Внешний сервис для хранения видео")
+System_Ext(video_hosting, "Хостинг видео", "Внешний сервис хранения видео")
 
-Rel(user, api_gateway, "Использует", "HTTPS")
-Rel(admin, api_gateway, "Использует", "HTTPS")
+Rel(user, backend, "Использует", "HTTPS/REST API")
+Rel(admin, backend, "Управляет", "HTTPS/REST API")
+Rel(moderator, backend, "Использует", "HTTPS/REST API")
 
-Rel(api_gateway, auth_service, "Проверяет авторизацию", "HTTP")
-Rel(api_gateway, user_service, "Запросы пользователей", "HTTP")
-Rel(api_gateway, app_service, "Запросы фильмов", "HTTP")
-
-Rel(auth_service, mongodb, "Читает/Записывает", "MongoDB Protocol")
-Rel(user_service, mongodb, "Читает/Записывает", "MongoDB Protocol")
-Rel(app_service, mongodb, "Читает/Записывает", "MongoDB Protocol")
-
-Rel(app_service, redis, "Кэширует данные", "Redis Protocol")
-Rel(prolog_server, redis, "Читает/Записывает рекомендации", "Redis Protocol")
-
-Rel(app_service, kafka, "Отправляет сообщения", "Kafka Protocol")
-Rel(user_service, kafka, "Отправляет сообщения", "Kafka Protocol")
-Rel(kafka, zookeeper, "Координация", "Zookeeper Protocol")
-
-Rel(app_service, prolog_server, "Запрашивает рекомендации", "HTTP")
-Rel(app_service, video_hosting, "Получает видео", "HTTPS")
+Rel(backend, database, "Читает/записывает данные", "MongoDB Protocol")
+Rel(backend, redis, "Кэширует данные, управляет сессиями", "Redis Protocol")
+Rel(backend, kafka, "Публикует/подписывается на события", "Kafka Protocol")
+Rel(backend, video_hosting, "Получает видео контент", "HTTPS/API")
 
 @enduml
 

@@ -1,97 +1,54 @@
-@startuml C4 Component Diagram
+@startuml c4-component
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
 
 LAYOUT_WITH_LEGEND()
 
-title Диаграмма компонентов - Сервис кино
+title Диаграмма компонентов (C4 Component)
 
-Container_Boundary(api_gateway_boundary, "API Gateway") {
-    Component(auth_router, "Auth Router", "FastAPI Router", "Маршрутизация запросов аутентификации")
-    Component(films_router, "Films Router", "FastAPI Router", "Маршрутизация запросов фильмов")
-    Component(users_router, "Users Router", "FastAPI Router", "Маршрутизация запросов пользователей")
-    Component(metrics_middleware, "Metrics Middleware", "Prometheus", "Сбор метрик")
-    Component(request_forwarder, "Request Forwarder", "HTTP Client", "Перенаправление запросов к сервисам")
+Person(user, "Пользовательский интерфейс")
+
+System_Boundary(backend, "Backend - Микросервисная архитектура") {
+    Component(api_gateway, "API Gateway", "FastAPI", "Точка входа для всех запросов, маршрутизация, аутентификация")
+    Component(nginx, "Nginx", "Web Server", "Балансировщик нагрузки")
+    Component(auth_service, "Сервис авторизации", ".NET", "Управление аутентификацией и авторизацией пользователей")
+    Component(user_service, "Сервис пользователей", "Kotlin/Ktor", "Управление профилями пользователей")
+    Component(app_service, "Сервис фильмов", "Kotlin/Ktor", "Управление фильмами и контентом")
+    Component(prolog_server, "Сервис рекомендаций", "SWI-Prolog", "Логический сервер для рекомендаций")
 }
 
-Container_Boundary(auth_service_boundary, "AuthService") {
-    Component(auth_controller, "Auth Controller", ".NET Controller", "Обработка запросов аутентификации")
-    Component(graphql_endpoint, "GraphQL Endpoint", "HotChocolate", "GraphQL API")
-    Component(metrics_endpoint, "Metrics Endpoint", "Prometheus", "Метрики сервиса")
-}
+ContainerDb(database, "База данных", "MongoDB", "Хранилище данных")
+ContainerDb(redis, "Кэш", "Redis")
+Container(kafka, "Брокер сообщений", "Kafka + Zookeeper", "Обработка событий")
 
-Container_Boundary(user_service_boundary, "UserService") {
-    Component(user_controller, "User Controller", "Kotlin Controller", "Обработка запросов пользователей")
-    Component(user_repository, "User Repository", "MongoDB Repository", "Работа с данными пользователей")
-    Component(network_client, "Network Client", "Ktor HTTP Client", "Взаимодействие с другими сервисами")
-    Component(kafka_client_us, "Kafka Client", "Kafka Streams", "Отправка сообщений")
-}
+System_Ext(video_hosting, "Хостинг видео", "Внешний сервис видео")
 
-Container_Boundary(app_service_boundary, "AppService") {
-    Component(data_controller, "Data Controller", "Kotlin Controller", "Обработка запросов фильмов")
-    Component(recommendation_controller, "Recommendation Controller", "Kotlin Controller", "Обработка рекомендаций")
-    Component(film_repository, "Film Repository", "MongoDB Repository", "Работа с данными фильмов")
-    Component(user_repo_app, "User Repository", "MongoDB/HTTP Repository", "Получение данных пользователей")
-    Component(prolog_client, "Prolog Client", "Ktor HTTP Client", "Взаимодействие с Prolog Server")
-    Component(kafka_client_app, "Kafka Client", "Kafka Streams", "Отправка сообщений")
-    Component(redis_client_app, "Redis Client", "Jedis", "Кэширование данных")
-}
+' Взаимодействие пользователя
+Rel(user, nginx, "HTTP/HTTPS запросы")
+Rel(nginx, api_gateway, "Перенаправляет запросы")
 
-Container_Boundary(prolog_server_boundary, "Prolog Server") {
-    Component(recommendation_engine, "Recommendation Engine", "SWI-Prolog", "Генерация рекомендаций")
-    Component(redis_client_prolog, "Redis Client", "Prolog Redis", "Сохранение рекомендаций")
-    Component(http_handler, "HTTP Handler", "SWI-Prolog HTTP", "Обработка HTTP запросов")
-}
+' Взаимодействие между микросервисами
+Rel(api_gateway, auth_service, "Проверка токенов, аутентификация", "REST API")
+Rel(api_gateway, user_service, "Операции с пользователями", "REST API")
+Rel(api_gateway, app_service, "Операции с фильмами", "REST API")
 
-ContainerDb(mongodb, "MongoDB", "MongoDB", "Хранит данные о фильмах, пользователях и авторизации")
-ContainerDb(redis, "Redis", "Redis", "Кэширование и очереди сообщений")
-ContainerDb(kafka, "Kafka", "Apache Kafka", "Очередь сообщений")
-ContainerDb(zookeeper, "Zookeeper", "Apache Zookeeper", "Координация Kafka")
+Rel(user_service, auth_service, "Проверка прав доступа", "REST API")
+Rel(app_service, user_service, "Получение данных пользователя", "REST API")
+Rel(app_service, prolog_server, "Получение рекомендаций", "REST API")
 
-System_Ext(video_hosting, "Хостинг видео", "Внешний сервис для хранения видео")
+' Взаимодействие с инфраструктурой
+Rel(auth_service, database, "Чтение/запись данных пользователей")
+Rel(user_service, database, "Чтение/запись профилей")
+Rel(app_service, database, "Чтение/запись данных фильмов")
 
-' API Gateway connections
-Rel(auth_router, request_forwarder, "Использует", "HTTP")
-Rel(films_router, request_forwarder, "Использует", "HTTP")
-Rel(users_router, request_forwarder, "Использует", "HTTP")
-Rel(metrics_middleware, metrics_middleware, "Собирает метрики", "Internal")
+Rel(auth_service, redis, "Хранение токенов и сессий")
+Rel(user_service, redis, "Кэширование")
+Rel(prolog_server, redis, "Запись рекомендаций")
 
-Rel(request_forwarder, auth_controller, "Перенаправляет запросы", "HTTP")
-Rel(request_forwarder, user_controller, "Перенаправляет запросы", "HTTP")
-Rel(request_forwarder, data_controller, "Перенаправляет запросы", "HTTP")
+Rel(app_service, redis, "Кэширование")
+Rel(user_service, kafka, "События")
+Rel(app_service, kafka, "События контента")
 
-' AuthService connections
-Rel(auth_controller, mongodb, "Читает/Записывает", "MongoDB Protocol")
-Rel(graphql_endpoint, mongodb, "Читает/Записывает", "MongoDB Protocol")
-
-' UserService connections
-Rel(user_controller, user_repository, "Использует", "Internal")
-Rel(user_controller, network_client, "Использует", "Internal")
-Rel(user_repository, mongodb, "Читает/Записывает", "MongoDB Protocol")
-Rel(network_client, data_controller, "Проверяет существование фильмов", "HTTP")
-Rel(kafka_client_us, kafka, "Отправляет сообщения", "Kafka Protocol")
-
-' AppService connections
-Rel(data_controller, film_repository, "Использует", "Internal")
-Rel(data_controller, kafka_client_app, "Использует", "Internal")
-Rel(recommendation_controller, film_repository, "Использует", "Internal")
-Rel(recommendation_controller, user_repo_app, "Использует", "Internal")
-Rel(recommendation_controller, prolog_client, "Использует", "Internal")
-Rel(film_repository, mongodb, "Читает/Записывает", "MongoDB Protocol")
-Rel(user_repo_app, mongodb, "Читает", "MongoDB Protocol")
-Rel(prolog_client, http_handler, "Запрашивает рекомендации", "HTTP")
-Rel(kafka_client_app, kafka, "Отправляет сообщения", "Kafka Protocol")
-Rel(redis_client_app, redis, "Кэширует данные", "Redis Protocol")
-
-' Prolog Server connections
-Rel(http_handler, recommendation_engine, "Использует", "Internal")
-Rel(recommendation_engine, redis_client_prolog, "Сохраняет рекомендации", "Internal")
-Rel(redis_client_prolog, redis, "Читает/Записывает", "Redis Protocol")
-
-' Infrastructure connections
-Rel(kafka, zookeeper, "Координация", "Zookeeper Protocol")
-
-' External connections
-Rel(prolog_client, video_hosting, "Получает видео", "HTTPS")
+Rel(app_service, video_hosting, "Получение видео", "HTTPS/API")
 
 @enduml
 

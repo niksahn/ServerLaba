@@ -1,0 +1,65 @@
+@startuml c4-code-authservice
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+LAYOUT_WITH_LEGEND()
+
+title Диаграмма кода (C4 Code) - AuthService (.NET)
+
+Container_Boundary(authservice, "AuthService - .NET 6") {
+    
+    Component(program, "Program", "Class", "Точка входа приложения, конфигурация хоста")
+    Component(startup, "Startup", "Class", "Конфигурация сервисов и middleware")
+    
+    Component(auth_controller, "AuthController", "Controller", "REST API контроллер для аутентификации\n- Authenticate()\n- Logout()\n- Refresh()\n- Identify()")
+    
+    Component(api_service, "ApiService", "Service", "HTTP клиент для внешних запросов\n- PostResourceAsync<T,B>()")
+    
+    Component(token_model, "Token", "Model", "Модель токена\n- Id: ObjectId\n- User_id: string\n- AccessToken: string\n- RefreshToken: string")
+    
+    Component(jwt_handler, "JwtSecurityTokenHandler", ".NET Library", "Генерация и валидация JWT токенов")
+    
+    ' Request/Response Models
+    Component(login_request, "LoginRequest", "DTO", "- UserName\n- Password")
+    Component(logout_request, "LogoutRequest", "DTO", "- token")
+    Component(refresh_request, "RefreshRequest", "DTO", "- RefreshToken")
+    Component(identify_request, "IdentifyRequest", "DTO", "- AccessToken\n- Role[]")
+    Component(identify_response, "IdentifyResponse", "DTO", "- Id\n- Role")
+    
+    ' GraphQL Components
+    Component_Ext(graphql_queries, "AuthQueries", "GraphQL", "GraphQL запросы для аутентификации")
+    Component_Ext(graphql_mutations, "AuthMutations", "GraphQL", "GraphQL мутации для аутентификации")
+}
+
+ContainerDb(mongodb, "MongoDB", "База данных", "Коллекция Tokens в БД AuthDb")
+System_Ext(user_service, "UserService", "Внешний сервис проверки пользователей")
+
+' Relationships - Configuration
+Rel(program, startup, "Использует для конфигурации")
+Rel(startup, auth_controller, "Регистрирует контроллер")
+Rel(startup, api_service, "Регистрирует как Singleton")
+Rel(startup, mongodb, "Конфигурирует MongoClient")
+
+' Relationships - Controller Dependencies
+Rel(auth_controller, api_service, "Использует для внешних запросов")
+Rel(auth_controller, jwt_handler, "Использует для работы с JWT")
+Rel(auth_controller, mongodb, "Читает/пишет токены", "MongoDB Driver")
+Rel(auth_controller, token_model, "Работает с моделью")
+
+' Relationships - DTOs
+Rel(auth_controller, login_request, "Принимает")
+Rel(auth_controller, logout_request, "Принимает")
+Rel(auth_controller, refresh_request, "Принимает")
+Rel(auth_controller, identify_request, "Принимает")
+Rel(auth_controller, identify_response, "Возвращает")
+
+' External Communication
+Rel(api_service, user_service, "Валидация пользователя", "HTTP POST")
+
+' GraphQL
+Rel(graphql_queries, auth_controller, "Делегирует вызовы")
+Rel(graphql_mutations, auth_controller, "Делегирует вызовы")
+
+SHOW_LEGEND()
+
+@enduml
+

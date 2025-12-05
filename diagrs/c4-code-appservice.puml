@@ -1,0 +1,103 @@
+@startuml c4-code-appservice
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+LAYOUT_WITH_LEGEND()
+
+title Диаграмма кода (C4 Code) - AppService (Kotlin/Ktor)
+
+Container_Boundary(appservice, "AppService - Kotlin/Ktor") {
+    
+    ' Application Layer
+    Component(application, "Application", "Main Class", "Точка входа приложения\n- main()\n- module()")
+    
+    ' Controllers (Domain Layer)
+    Component(data_controller, "DataController", "Controller", "Контроллер фильмов\n- getAllData()\n- addFilm()\n- deleteFilm()\n- getById()\n- update()\n- getRandom()")
+    
+    Component(recommendation_controller, "RecommendationController", "Controller", "Контроллер рекомендаций\n- getPrologRecommendation()\n- postProlog()")
+    
+    Component(approve_controller, "ApproveController", "Controller", "Контроллер согласования\n- approveFilm()\n- rejectFilm()")
+    
+    ' Domain Models
+    Component(film_domain, "Film", "Domain Model", "Доменная модель фильма\n- id: String\n- genre: Genre\n- description: String\n- name: String\n- link: String\n- dateApprove: String?")
+    
+    ' Repository Layer
+    Component(films_repo_interface, "<<interface>>\nFilmsDataRepository", "Interface", "Интерфейс репозитория\n- getFilms()\n- getFilm()\n- addFilm()\n- changeFilm()\n- deleteFIlm()\n- getRandom()")
+    
+    Component(cached_repository, "CachedRepository", "Decorator", "Репозиторий с кэшированием\n- Декоратор для MongoDB репозитория")
+    
+    Component(mongo_repository, "DataRepositoryMongo", "Repository", "Реализация MongoDB репозитория")
+    
+    Component(user_repository, "UserRepositoryKtor", "Repository", "Репозиторий пользователей\n- HTTP клиент к UserService")
+    
+    ' Data Layer
+    Component(film_mongo, "FilmMongo", "Entity", "MongoDB сущность\n- id: ObjectId\n- genre: Genre\n- description: String\n- name: String")
+    
+    Component(cache_client, "CacheClient", "Interface", "Интерфейс кэш-клиента")
+    Component(redis_client, "RedisClient", "Implementation", "Реализация Redis клиента")
+    
+    ' Messaging
+    Component(approve_service, "ApproveService", "Service", "Сервис отправки событий\n- sendToApprove()")
+    Component(kafka_client, "KafkaMessageClient", "Client", "Клиент Kafka")
+    Component(prolog_messaging, "PrologMessaging", "Service", "Сервис обмена с Prolog")
+    
+    ' Network
+    Component(ktor_client, "KtorNetworkClient", "HTTP Client", "HTTP клиент для внешних запросов")
+    
+    ' DI
+    Component(data_module, "DataModule", "Koin Module", "Модуль Dependency Injection\n- Конфигурация зависимостей")
+}
+
+ContainerDb(mongodb, "MongoDB", "База данных", "Коллекция films")
+ContainerDb(redis, "Redis", "Кэш", "Кэширование данных")
+Container(kafka, "Kafka", "Message Broker", "События согласования")
+System_Ext(prolog_service, "Prolog Server", "Сервис рекомендаций")
+System_Ext(user_service, "UserService", "Сервис пользователей")
+
+' Application Layer
+Rel(application, data_module, "Инициализирует DI")
+Rel(application, data_controller, "Создает через DI")
+Rel(application, recommendation_controller, "Создает через DI")
+
+' DI Configuration
+Rel(data_module, films_repo_interface, "Регистрирует как singleton")
+Rel(data_module, cached_repository, "Конфигурирует")
+Rel(data_module, data_controller, "Инжектирует зависимости")
+Rel(data_module, recommendation_controller, "Инжектирует зависимости")
+
+' Controllers Dependencies
+Rel(data_controller, films_repo_interface, "Использует")
+Rel(data_controller, approve_service, "Отправляет события")
+Rel(data_controller, film_domain, "Работает с моделью")
+
+Rel(recommendation_controller, films_repo_interface, "Получает фильмы")
+Rel(recommendation_controller, user_repository, "Получает пользователей")
+Rel(recommendation_controller, prolog_messaging, "Получает рекомендации")
+Rel(recommendation_controller, ktor_client, "Отправляет данные в Prolog")
+
+Rel(approve_controller, films_repo_interface, "Обновляет фильмы")
+
+' Repository Pattern
+Rel(films_repo_interface, cached_repository, "Реализуется")
+Rel(films_repo_interface, mongo_repository, "Реализуется")
+Rel(cached_repository, mongo_repository, "Декорирует")
+Rel(cached_repository, redis_client, "Использует для кэширования")
+Rel(redis_client, cache_client, "Реализует")
+
+' Data Access
+Rel(mongo_repository, film_mongo, "Работает с entity")
+Rel(mongo_repository, mongodb, "Читает/пишет данные", "MongoDB Driver")
+Rel(film_mongo, film_domain, "Преобразуется в/из", "toDomain()/toMongo()")
+
+Rel(redis_client, redis, "Кэширует данные", "Redis Protocol")
+Rel(approve_service, kafka_client, "Публикует события")
+Rel(kafka_client, kafka, "Отправляет сообщения", "Kafka Protocol")
+Rel(prolog_messaging, redis, "Читает рекомендации", "Redis Protocol")
+
+' External Services
+Rel(ktor_client, prolog_service, "Отправляет данные", "HTTP")
+Rel(user_repository, user_service, "Получает пользователей", "HTTP")
+
+SHOW_LEGEND()
+
+@enduml
+
